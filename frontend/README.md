@@ -1,75 +1,83 @@
-# React + TypeScript + Vite
+# BookRoom frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend системы поиска и бронирования переговорных. Приложение написано на React и
+TypeScript, получает серверные данные из предоставленного API и хранит состояние фильтров в URL.
 
-Currently, two official plugins are available:
+## Требования
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 или новее;
+- запущенный backend из соседней директории `server`.
 
-## React Compiler
+## Запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Установить зависимости:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm ci
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Запустить frontend в режиме разработки:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run dev
 ```
+
+По умолчанию приложение открывается на `http://localhost:5173`, а API ожидается на
+`http://localhost:3000/api/v1`. Другой адрес API можно передать через `VITE_API_URL`.
+
+## Проверки
+
+```bash
+npm test -- --run
+npm run build
+npm run lint
+npm run format:check
+```
+
+## Технологии
+
+- React 19 и React Router;
+- TypeScript;
+- TanStack Query для серверного состояния;
+- Axios для HTTP;
+- CSS Modules;
+- Vitest и React Testing Library;
+- Vite.
+
+## Архитектура
+
+```text
+src/
+├── api/          HTTP-функции, query keys/options и QueryClient
+├── assets/       SVG-иконки по доменам
+├── components/   переиспользуемые layout, rooms и UI-компоненты
+├── constants/    статические опции и имена URL-параметров
+├── hooks/        URL-состояние фильтров и локальные UI-хуки
+├── pages/        route-level компоненты
+├── router/       дерево маршрутов и централизованные пути
+├── test/         тесты и тестовые утилиты
+├── types/        API, доменные и композиционные интерфейсы
+└── utils/        чистая логика времени, офиса и отображения
+```
+
+HTTP-функции не зависят от React. TanStack Query-конфигурация хранится отдельно в
+`api/queryOptions.ts`, поэтому её можно переиспользовать при инвалидации данных и обработке
+WebSocket-событий.
+
+Фильтры принадлежат странице переговорных. Хук `useRoomFilters` преобразует URL в типизированные
+значения и API-интервал, а `FilterBar` получает только композиционный интерфейс
+`state/actions/meta`. Серверные данные не копируются в локальное или глобальное состояние.
+
+## Принятые решения
+
+- Выбранный офис и фильтры хранятся в URL, чтобы состояние сохранялось после обновления страницы
+  и могло быть передано ссылкой.
+- Сброс фильтров очищает всю строку запроса, включая офис, и возвращает страницу в состояние
+  первоначального выбора офиса.
+- Локальные дата и время преобразуются в ISO-интервал с учётом `timezone`, полученного от API;
+  браузерный часовой пояс не считается часовым поясом офиса.
+- Endpoint списка возвращает доступность комнаты, но не окончание соседнего бронирования. Поэтому
+  карточка показывает достоверное «занята в выбранное время», не придумывая значение
+  «занята до HH:mm».
+- Сложные compound providers не используются: текущее состояние нужно только странице и панели
+  фильтров, поэтому явная передача контроллера проще и легче объясняется.

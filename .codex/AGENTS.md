@@ -109,13 +109,30 @@ Prefer responsibility-based folders such as:
 src/
 ├── api/
 ├── assets/
+│   ├── ui/
+│   │   └── icons/
+│   ├── layout/
+│   │   └── icons/
+│   ├── rooms/
+│   │   └── icons/
+│   └── bookings/
+│       └── icons/
 ├── components/
 │   ├── ui/
+│   │   └── Button/
+│   │       ├── Button.tsx
+│   │       └── Button.module.css
 │   ├── layout/
 │   ├── rooms/
+│   │   └── RoomCard/
+│   │       ├── RoomCard.tsx
+│   │       └── RoomCard.module.css
 │   └── bookings/
 ├── hooks/
 ├── pages/
+│   └── RoomsPage/
+│       ├── RoomsPage.tsx
+│       └── RoomsPage.module.css
 ├── router/
 ├── test/
 ├── types/
@@ -464,6 +481,119 @@ Do not claim a task is complete while tests are failing.
 
 ---
 
+# Styling and File Colocation
+
+Use CSS Modules for component, page, and layout styles.
+
+Rules:
+
+- use `*.module.css` for all component-specific, page-specific, and layout-specific styles;
+- keep styles next to the component or page that uses them;
+- each UI component, page, or layout unit must live in its own directory;
+- keep the component `.tsx` file and its `.module.css` file in the same directory;
+- do not create a central folder for component styles;
+- do not place unrelated component styles in `index.css`;
+- `src/index.css` is reserved for global styles such as reset, base typography, root-level defaults,
+  and truly global CSS variables;
+- do not use plain `.css` files for local component styles;
+- do not use inline styles for ordinary static styling when the same styling belongs in a CSS Module;
+- avoid `!important` unless there is a concrete unavoidable reason;
+- prefer clear class names that describe the role of the element inside the component;
+- keep styles scoped to the component instead of relying on global selectors;
+- when a component is moved, its styles must move with it;
+- if a component has no styles, do not create an empty `.module.css` file.
+
+Preferred structure:
+
+```text
+src/components/ui/Button/
+├── Button.tsx
+└── Button.module.css
+
+src/components/rooms/RoomCard/
+├── RoomCard.tsx
+└── RoomCard.module.css
+
+src/pages/RoomsPage/
+├── RoomsPage.tsx
+└── RoomsPage.module.css
+```
+
+Import CSS Modules directly from the colocated file:
+
+```tsx
+import styles from './Button.module.css';
+
+export const Button = () => (
+  <button className={styles.button}>
+    Забронировать
+  </button>
+);
+```
+
+Do not create structures such as:
+
+```text
+src/styles/Button.css
+src/styles/RoomCard.css
+src/components/Button.tsx
+```
+
+when the styles belong only to those components.
+
+---
+
+# Icons and Visual Assets
+
+Store project-owned SVG icons as reusable React components inside `src/assets/`,
+grouped by domain.
+
+Preferred structure:
+
+```text
+src/assets/
+├── ui/
+│   └── icons/
+│       ├── CloseIcon.tsx
+│       ├── ChevronDownIcon.tsx
+│       └── SearchIcon.tsx
+├── layout/
+│   └── icons/
+│       ├── LogoIcon.tsx
+│       └── MenuIcon.tsx
+├── rooms/
+│   └── icons/
+│       ├── CapacityIcon.tsx
+│       ├── ProjectorIcon.tsx
+│       └── WhiteboardIcon.tsx
+└── bookings/
+    └── icons/
+        ├── CalendarIcon.tsx
+        └── ClockIcon.tsx
+```
+
+Rules:
+
+- keep icons inside `src/assets/`, grouped by the domain they belong to;
+- use domain folders such as `rooms`, `bookings`, `layout`, and `ui`;
+- keep truly generic icons under `src/assets/ui/icons/`;
+- each reusable SVG icon must be implemented as a separate `.tsx` React component;
+- use arrow functions for icon components;
+- do not create one large global `icons/` directory containing unrelated icons from all domains;
+- do not duplicate SVG markup across the codebase;
+- reuse an existing icon component whenever the same visual asset is needed again;
+- prefer `currentColor` when the design allows icon color to be controlled externally;
+- accept `SVGProps<SVGSVGElement>` when standard SVG props should be configurable;
+- preserve SVG paths, proportions, and visual appearance from Figma;
+- do not replace provided Figma icons with visually different third-party icons without a concrete reason;
+- do not install an icon library when the required icons are already available in the design;
+- keep icon components presentation-only and free of business logic;
+- if an icon clearly belongs to one domain, keep it in that domain instead of moving it to `ui`;
+- move an icon to `ui` only when it becomes genuinely generic and is reused across multiple domains.
+
+
+---
+
 # Accessibility
 
 Use semantic HTML.
@@ -596,7 +726,9 @@ Before considering work complete, check:
 - important UI states exist;
 - code is understandable;
 - application and test functions use arrow-function syntax;
-- all test files are located under `src/test/`.
+- all test files are located under `src/test/`;
+- local UI styles use CSS Modules;
+- component/page styles are colocated with the code that uses them.
 
 Do not mark work complete merely because it compiles.
 
@@ -683,6 +815,8 @@ Before declaring the assignment ready for submission, verify:
 - unit tests pass;
 - all tests are stored under `src/test/`;
 - arrow functions are used consistently;
+- local styles use CSS Modules;
+- component/page styles are stored next to their implementation;
 - README contains startup instructions;
 - README contains test instructions;
 - README describes architecture;
