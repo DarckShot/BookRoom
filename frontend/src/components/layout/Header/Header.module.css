@@ -1,0 +1,189 @@
+.header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: 1px solid var(--color-border);
+  background: #ffffff;
+}
+
+.brand,
+.profile {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand {
+  border-radius: 8px;
+  color: var(--color-text);
+}
+
+.logo {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.logo svg {
+  width: 18px;
+  height: 18px;
+}
+
+.brandName {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  height: 72px;
+  flex: 0 0 auto;
+  align-items: stretch;
+  gap: 32px;
+}
+
+.navLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: normal;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.navLink:hover {
+  color: var(--color-primary-hover);
+}
+
+.navLink[aria-current='page'] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.navLink[aria-current='page']::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: currentcolor;
+  content: '';
+}
+
+.userName {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.avatarCircle,
+.initials {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 40px;
+  height: 40px;
+}
+
+.avatarCircle {
+  max-width: none;
+}
+
+.initials {
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header a:focus-visible {
+  outline: 3px solid rgb(13 148 136 / 28%);
+  outline-offset: 4px;
+}
+
+@media (max-width: 760px) {
+  .header {
+    padding: 0 20px;
+  }
+
+  .brandName,
+  .userName {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nav {
+    gap: 20px;
+  }
+
+  .navLink {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    height: 64px;
+    padding: 0 12px;
+  }
+
+  .logo,
+  .avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .avatarCircle,
+  .initials {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav {
+    height: 64px;
+    gap: 14px;
+  }
+
+  .navLink {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLink {
+    transition: none;
+  }
+}

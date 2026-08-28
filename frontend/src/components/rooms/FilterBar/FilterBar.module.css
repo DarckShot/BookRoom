@@ -1,0 +1,69 @@
+.bar {
+  display: flex;
+  height: 100px;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--color-border);
+  background: #ffffff;
+  overflow: visible;
+}
+
+.disabled {
+  opacity: 0.4;
+}
+
+.dateControl {
+  min-width: 150px;
+}
+
+.timeControl {
+  width: 87px;
+}
+
+.durationControl {
+  min-width: 84px;
+}
+
+.capacityControl {
+  min-width: 149px;
+}
+
+.durationMenu {
+  min-width: 124px;
+}
+
+.disabled .dateControl {
+  min-width: 152px;
+}
+
+.disabled .timeControl {
+  width: 79px;
+}
+
+.disabled .durationControl {
+  min-width: 118px;
+}
+
+.disabled .capacityControl {
+  min-width: 127px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 760px) {
+  .bar {
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bar {
+    padding-inline: 16px;
+  }
+}

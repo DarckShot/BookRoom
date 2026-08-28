@@ -1,13 +1,12 @@
-import { StrictMode } from 'react';
+import '@fontsource-variable/manrope';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { AppProviders } from './components/app/AppProviders/AppProviders';
 import './index.css';
 import App from './App.tsx';
+import { getRequiredElement } from './utils/dom';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>,
+createRoot(getRequiredElement('root')).render(
+  <AppProviders>
+    <App />
+  </AppProviders>,
 );

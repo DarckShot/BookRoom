@@ -1,0 +1,18 @@
+.page {
+  width: min(100% - 80px, 1360px);
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.page h1 {
+  color: var(--color-text);
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+@media (max-width: 760px) {
+  .page {
+    width: calc(100% - 40px);
+    padding-top: 32px;
+  }
+}

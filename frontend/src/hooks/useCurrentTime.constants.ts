@@ -1,0 +1,1 @@
+export const CLOCK_UPDATE_INTERVAL_MS = 30_000;

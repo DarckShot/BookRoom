@@ -1,0 +1,113 @@
+.panel {
+  display: flex;
+  height: 95px;
+  align-items: center;
+  padding: 24px 40px;
+  border-bottom: 1px solid var(--color-border);
+  background: #ffffff;
+}
+
+.info {
+  display: flex;
+  min-width: 0;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.officeSelect {
+  z-index: 30;
+}
+
+.officeSelect .officeTrigger {
+  width: auto;
+  height: 25px;
+  padding: 0;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.officeSelect .officeTrigger > span {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.officeSelect .officeTrigger > .officePlaceholder {
+  color: #94a3b8;
+}
+
+.officeSelect .officeMenu {
+  width: 250px;
+}
+
+.officeSelect .officeTrigger:focus-visible {
+  outline-offset: 4px;
+}
+
+.meta {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.separator {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 auto;
+}
+
+.metaPlaceholder {
+  color: #94a3b8;
+}
+
+.status,
+.error {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.retry {
+  border-radius: 6px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.retry:focus-visible {
+  outline: 3px solid rgb(13 148 136 / 28%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .panel {
+    height: 95px;
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel {
+    height: auto;
+    min-height: 95px;
+    padding-inline: 16px;
+  }
+
+  .meta {
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+}

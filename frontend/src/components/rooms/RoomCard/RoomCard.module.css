@@ -1,0 +1,127 @@
+.card {
+  display: flex;
+  min-width: 0;
+  min-height: 250px;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.card header h2 {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.card header p {
+  margin-top: 4px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.details {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.details p {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.details svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.availability {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.availability span {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentcolor;
+}
+
+.available {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.unavailable {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.detailsLink,
+.bookLink {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.detailsLink {
+  color: var(--color-primary);
+}
+
+.detailsLink:hover {
+  background: #f0fdfa;
+}
+
+.bookLink {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.bookLink:hover {
+  background: var(--color-primary-hover);
+}
+
+.bookLink:disabled {
+  background: #f1f5f9;
+  color: #cbd5e1;
+}
+
+.detailsLink:focus-visible,
+.bookLink:focus-visible {
+  outline: 3px solid rgb(13 148 136 / 28%);
+  outline-offset: 3px;
+}
