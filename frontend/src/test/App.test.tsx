@@ -210,6 +210,41 @@ describe('App layout', () => {
     expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'true');
   });
 
+  it('показывает ошибку загрузки переговорных и позволяет повторить запрос', async () => {
+    vi.mocked(getRooms).mockRejectedValueOnce(new Error('Network error'));
+    const user = userEvent.setup();
+    renderApp('/rooms?officeId=office-moscow');
+
+    const errorState = await screen.findByRole('alert');
+
+    expect(errorState).toHaveTextContent('Не удалось загрузить данные');
+    expect(errorState).toHaveTextContent('Произошла ошибка при загрузке списка переговорных');
+    expect(screen.queryByText('Соединение потеряно. Переподключение...')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeVisible();
+    expect(getRooms).toHaveBeenCalledTimes(2);
+  });
+
+  it('показывает экран ошибки при потере WebSocket-соединения', async () => {
+    const reconnect = vi.fn();
+    const user = userEvent.setup();
+    renderApp('/rooms?officeId=office-moscow', {
+      connectionStatus: 'reconnecting',
+      onReconnect: reconnect,
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить данные');
+    expect(screen.getByText('Соединение потеряно. Переподключение...')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
+
+    expect(reconnect).toHaveBeenCalledOnce();
+  });
+
   it('показывает пустое состояние для пустого ответа комнат и сбрасывает фильтры', async () => {
     vi.mocked(getRooms).mockResolvedValueOnce([]);
     const user = userEvent.setup();

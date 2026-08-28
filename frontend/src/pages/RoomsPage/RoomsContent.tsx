@@ -6,11 +6,18 @@ import { RoomsErrorState } from './RoomsErrorState';
 import { RoomsList } from './RoomsList';
 import type { RoomsContentProps, RoomsContentStatus } from './types';
 
-export const RoomsContent = ({ status, rooms, search, onRetry, onReset }: RoomsContentProps) => {
+export const RoomsContent = ({
+  status,
+  rooms,
+  search,
+  connectionStatus,
+  onRetry,
+  onReset,
+}: RoomsContentProps) => {
   const content: Record<RoomsContentStatus, ReactNode> = {
     noOffice: <NoOfficeState />,
     loading: <RoomsLoadingState />,
-    error: <RoomsErrorState onRetry={onRetry} />,
+    error: <RoomsErrorState connectionStatus={connectionStatus} onRetry={onRetry} />,
     empty: <RoomsEmptyState onReset={onReset} />,
     ready: <RoomsList rooms={rooms} search={search} />,
   };

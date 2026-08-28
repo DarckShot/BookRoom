@@ -1,0 +1,32 @@
+.banner {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-bottom: 1px solid #facc15;
+  background: #fef08a;
+  color: #92400e;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 480px) {
+  .banner {
+    justify-content: flex-start;
+    padding-inline: 16px;
+    font-size: 13px;
+  }
+}
