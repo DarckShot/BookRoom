@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useOutsidePointerDown } from '../../../hooks/useOutsidePointerDown';
 import type { SelectOption } from '../../../types/select';
 import type { UseCustomSelectProps } from './types';
@@ -18,6 +18,12 @@ export const useCustomSelect = ({
   const selectedIndex = options.findIndex((option) => option.value === value);
   const selectedOption = options[selectedIndex];
 
+  useEffect(() => {
+    if (isOpen) {
+      optionRefs.current[activeIndex]?.focus();
+    }
+  }, [activeIndex, isOpen]);
+
   const openMenu = (index = selectedIndex >= 0 ? selectedIndex : 0) => {
     if (disabled || options.length === 0) {
       return;
@@ -25,7 +31,6 @@ export const useCustomSelect = ({
 
     setActiveIndex(index);
     setIsOpen(true);
-    window.requestAnimationFrame(() => optionRefs.current[index]?.focus());
   };
 
   const closeMenu = (restoreFocus = false) => {

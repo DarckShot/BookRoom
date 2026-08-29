@@ -23,3 +23,10 @@ export interface RoomFiltersController {
     latestStartTime: string;
   };
 }
+
+export interface RoomFilterIntervalInput {
+  date: string;
+  startTime: string;
+  durationMinutes: number;
+  timeZone: string;
+}

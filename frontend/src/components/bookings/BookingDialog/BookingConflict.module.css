@@ -1,0 +1,62 @@
+.conflict {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 40px 32px 32px;
+  text-align: center;
+}
+
+.icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.icon svg {
+  width: 38px;
+  height: 38px;
+}
+
+.conflict h2 {
+  margin-top: 20px;
+  color: var(--color-text);
+  font-size: 24px;
+  line-height: 33px;
+}
+
+.conflict p {
+  max-width: 370px;
+  margin-top: 24px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.conflict button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28px;
+  padding: 9px 24px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.conflict button:hover {
+  background: var(--color-primary-hover);
+}
+
+.conflict button:focus-visible {
+  outline: 3px solid rgb(13 148 136 / 28%);
+  outline-offset: 3px;
+}

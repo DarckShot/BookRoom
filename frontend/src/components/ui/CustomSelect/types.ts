@@ -14,6 +14,8 @@ export interface CustomSelectProps {
   menuClassName?: string;
   placeholderClassName?: string;
   chevronVisibility?: 'always' | 'enabled';
+  ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
 }
 
 export type UseCustomSelectProps = Pick<

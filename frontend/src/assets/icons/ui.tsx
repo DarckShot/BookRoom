@@ -38,3 +38,34 @@ export const InfoCircleIcon = (props: SVGProps<SVGSVGElement>) => (
     <circle cx="10" cy="6" r="1" fill="currentColor" />
   </svg>
 );
+
+export const ChevronRightIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" {...props}>
+    <path
+      d="m6 4 4 4-4 4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const CloseCircleIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+    <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="2" />
+    <path d="m7.5 7.5 5 5m0-5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+export const SuccessCheckIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <path
+      d="m5 12.5 4.3 4.3L19 7"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

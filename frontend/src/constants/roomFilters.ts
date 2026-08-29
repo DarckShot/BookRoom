@@ -1,7 +1,8 @@
 import type { SelectOption } from '../types/select';
+import { BOOKING_TIME_STEP_MINUTES, BOOKING_WORKDAY_START } from './booking';
 
-export const ROOM_TIME_STEP_MINUTES = 15;
-export const ROOM_WORKING_DAY_START = '09:00';
+export const ROOM_TIME_STEP_MINUTES = BOOKING_TIME_STEP_MINUTES;
+export const ROOM_WORKING_DAY_START = BOOKING_WORKDAY_START;
 
 export const ROOM_FILTER_PARAMS = {
   officeId: 'officeId',

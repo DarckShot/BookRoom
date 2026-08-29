@@ -5,6 +5,8 @@ export interface TimeInputProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   className?: string;
+  ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
 }
 
 export type UseTimeInputProps = Pick<TimeInputProps, 'value' | 'min' | 'max' | 'onChange'>;

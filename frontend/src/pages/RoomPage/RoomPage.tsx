@@ -1,7 +1,71 @@
-import { PageShell } from '../../components/ui/PageShell/PageShell';
+import { lazy, Suspense, type ReactNode } from 'react';
+import { BookingSuccessToast } from '../../components/bookings/BookingSuccessToast/BookingSuccessToast';
+import { RoomBreadcrumbs } from './RoomBreadcrumbs';
+import { RoomInfoCard } from './RoomInfoCard';
+import { RoomPageError } from './RoomPageError';
+import { RoomPageLoading } from './RoomPageLoading';
+import styles from './RoomPage.module.css';
+import { RoomSchedule } from './RoomSchedule';
+import type { RoomPageStatus } from './types';
+import { useRoomPage } from './useRoomPage';
 
-export const RoomPage = () => (
-  <PageShell>
-    <h1>Переговорная</h1>
-  </PageShell>
+const BookingDialog = lazy(() =>
+  import('../../components/bookings/BookingDialog/BookingDialog').then((module) => ({
+    default: module.BookingDialog,
+  })),
 );
+
+export const RoomPage = () => {
+  const { data, status, actions } = useRoomPage();
+  const readyContent = data.room ? (
+    <>
+      <main className={styles.page}>
+        <RoomBreadcrumbs room={data.room} search={data.search} />
+        <div className={styles.layout}>
+          <RoomInfoCard room={data.room} />
+          <RoomSchedule
+            status={status.schedule}
+            bookings={data.bookings}
+            currentUserId={data.currentUserId}
+            date={data.date}
+            minDate={data.minDate}
+            maxDate={data.maxDate}
+            timeZone={data.room.office.timezone}
+            now={data.now}
+            onDateChange={actions.changeDate}
+            onRetry={actions.retrySchedule}
+            onBook={actions.openBooking}
+            onTimeSelect={actions.openBookingAt}
+          />
+        </div>
+      </main>
+      {data.isBookingOpen ? (
+        <Suspense fallback={null}>
+          <BookingDialog
+            room={data.room}
+            selectedDate={data.date}
+            initialStartTime={data.bookingStartTime}
+            search={data.search}
+            onClose={actions.closeBooking}
+            onCreated={actions.finishBooking}
+          />
+        </Suspense>
+      ) : null}
+      {data.createdBooking ? (
+        <BookingSuccessToast
+          booking={data.createdBooking}
+          onClose={actions.dismissBookingSuccess}
+        />
+      ) : null}
+    </>
+  ) : (
+    <RoomPageLoading />
+  );
+  const content: Record<RoomPageStatus, ReactNode> = {
+    loading: <RoomPageLoading />,
+    error: <RoomPageError onRetry={actions.retryPage} />,
+    ready: readyContent,
+  };
+
+  return content[status.page];
+};

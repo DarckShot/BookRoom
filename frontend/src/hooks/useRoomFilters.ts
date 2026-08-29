@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { RoomsQuery } from '../api/rooms';
+import { BOOKING_MAX_ADVANCE_DAYS } from '../constants/booking';
 import { ROOM_FILTER_PARAMS, ROOM_TIME_STEP_MINUTES } from '../constants/roomFilters';
 import type { RoomFiltersController, RoomFilterValues } from '../types/roomFilters';
 import {
@@ -104,7 +105,9 @@ export const useRoomFilters = ({ officeId, officeTimezone }: UseRoomFiltersInput
       },
       meta: {
         minDate: defaults?.date ?? '1970-01-01',
-        maxDate: defaults ? addDaysToIsoDate(defaults.date, 30) : '1970-01-01',
+        maxDate: defaults
+          ? addDaysToIsoDate(defaults.date, BOOKING_MAX_ADVANCE_DAYS)
+          : '1970-01-01',
         latestStartTime,
       },
     } satisfies RoomFiltersController,

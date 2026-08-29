@@ -5,13 +5,16 @@ export interface RoomFeature {
   name: string;
 }
 
-export interface Room {
+export interface RoomDetails {
   id: string;
   officeId: string;
   name: string;
   floor: number;
   capacity: number;
   features: RoomFeature[];
+}
+
+export interface Room extends RoomDetails {
   office: Office;
   available?: boolean;
 }

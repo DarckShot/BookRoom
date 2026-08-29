@@ -1,7 +1,33 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+
+  test: {
+    coverage: {
+      provider: 'v8',
+
+      include: ['src/**/*.{ts,tsx}'],
+
+      exclude: [
+        'src/test/**',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.d.ts',
+        'src/**/types.ts',
+        'src/types/**',
+        'src/main.tsx',
+      ],
+
+      reporter: ['text', 'html'],
+
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 80,
+        lines: 80,
+      },
+    },
+  },
 });

@@ -53,3 +53,41 @@ export const UsersIcon = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
+
+export const DisplayIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <rect x="3" y="6" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+    <path
+      d="m8 3 4 3 4-3"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const WhiteboardIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <path
+      d="M4 20h16M5.5 16.5l10.7-10.7a2.12 2.12 0 0 1 3 3L8.5 19.5 4 20l.5-4.5Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const VideoIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <rect x="3" y="7" width="13" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
+    <path
+      d="m16 11 5-3v9l-5-3"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

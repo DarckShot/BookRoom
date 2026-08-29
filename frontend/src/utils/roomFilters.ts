@@ -1,27 +1,29 @@
-import { ROOM_TIME_STEP_MINUTES } from '../constants/roomFilters';
+import {
+  BOOKING_DEFAULT_DURATION_MINUTES,
+  BOOKING_TIME_STEP_MINUTES,
+  BOOKING_WORKDAY_END_MINUTES,
+  BOOKING_WORKDAY_START_MINUTES,
+} from '../constants/booking';
 import {
   DAY_AND_MONTH_FORMATTER,
-  DEFAULT_DURATION_MINUTES,
   ISO_DATE_PATTERN,
   TIME_PATTERN,
   WEEKDAY_FORMATTER,
-  WORKING_DAY_END_MINUTES,
-  WORKING_DAY_START_MINUTES,
   ZONED_DATE_TIME_FORMATTERS,
 } from './roomFilters.constants';
+import type { RoomFilterIntervalInput, RoomFilterValues } from '../types/roomFilters';
 import { capitalize } from './string';
-
-export interface RoomFilterDefaults {
-  date: string;
-  startTime: string;
-  durationMinutes: number;
-  minCapacity: number;
-}
 
 const padTimePart = (value: number) => String(value).padStart(2, '0');
 
-const formatMinutesAsTime = (minutes: number) =>
+export const formatMinutesAsTime = (minutes: number) =>
   `${padTimePart(Math.floor(minutes / 60))}:${padTimePart(minutes % 60)}`;
+
+export const getTimeAsMinutes = (time: string) => {
+  const match = TIME_PATTERN.exec(time);
+
+  return match ? Number(match[1]) * 60 + Number(match[2]) : undefined;
+};
 
 export const isValidRoomStartTime = (value: string, min: string, max: string) => {
   const match = TIME_PATTERN.exec(value);
@@ -37,7 +39,7 @@ export const isValidRoomStartTime = (value: string, min: string, max: string) =>
   return (
     numericHours <= 23 &&
     numericMinutes <= 59 &&
-    numericMinutes % ROOM_TIME_STEP_MINUTES === 0 &&
+    numericMinutes % BOOKING_TIME_STEP_MINUTES === 0 &&
     value >= min &&
     value <= max
   );
@@ -72,7 +74,7 @@ const getZonedDateTimeFormatter = (timeZone: string) => {
   return formatter;
 };
 
-const getZonedDateTimeParts = (date: Date, timeZone: string) => {
+export const getDateTimePartsInTimeZone = (date: Date, timeZone: string) => {
   const parts = getZonedDateTimeFormatter(timeZone).formatToParts(date);
   const getPart = (type: Intl.DateTimeFormatPartTypes) =>
     Number(parts.find((part) => part.type === type)?.value ?? 0);
@@ -87,30 +89,33 @@ const getZonedDateTimeParts = (date: Date, timeZone: string) => {
   };
 };
 
-export const getDefaultRoomFilters = (now: Date, timeZone: string): RoomFilterDefaults => {
-  const officeDateTime = getZonedDateTimeParts(now, timeZone);
+export const getDefaultRoomFilters = (now: Date, timeZone: string): RoomFilterValues => {
+  const officeDateTime = getDateTimePartsInTimeZone(now, timeZone);
   let date = `${officeDateTime.year}-${padTimePart(officeDateTime.month)}-${padTimePart(officeDateTime.day)}`;
-  let startMinutes = Math.floor((officeDateTime.hour * 60 + officeDateTime.minute) / 15) * 15 + 15;
+  let startMinutes =
+    Math.floor((officeDateTime.hour * 60 + officeDateTime.minute) / BOOKING_TIME_STEP_MINUTES) *
+      BOOKING_TIME_STEP_MINUTES +
+    BOOKING_TIME_STEP_MINUTES;
 
-  if (startMinutes < WORKING_DAY_START_MINUTES) {
-    startMinutes = WORKING_DAY_START_MINUTES;
+  if (startMinutes < BOOKING_WORKDAY_START_MINUTES) {
+    startMinutes = BOOKING_WORKDAY_START_MINUTES;
   }
 
-  if (startMinutes + DEFAULT_DURATION_MINUTES > WORKING_DAY_END_MINUTES) {
+  if (startMinutes + BOOKING_DEFAULT_DURATION_MINUTES > BOOKING_WORKDAY_END_MINUTES) {
     date = addDaysToIsoDate(date, 1);
-    startMinutes = WORKING_DAY_START_MINUTES;
+    startMinutes = BOOKING_WORKDAY_START_MINUTES;
   }
 
   return {
     date,
     startTime: formatMinutesAsTime(startMinutes),
-    durationMinutes: DEFAULT_DURATION_MINUTES,
+    durationMinutes: BOOKING_DEFAULT_DURATION_MINUTES,
     minCapacity: 4,
   };
 };
 
 export const getLatestStartTime = (durationMinutes: number) =>
-  formatMinutesAsTime(WORKING_DAY_END_MINUTES - durationMinutes);
+  formatMinutesAsTime(BOOKING_WORKDAY_END_MINUTES - durationMinutes);
 
 export const formatRoomFilterDate = (date: string) => {
   const value = new Date(`${date}T12:00:00.000Z`);
@@ -136,13 +141,6 @@ export const formatDuration = (durationMinutes: number) => {
   return `${hours} ч. ${minutes} мин.`;
 };
 
-interface RoomFilterIntervalInput {
-  date: string;
-  startTime: string;
-  durationMinutes: number;
-  timeZone: string;
-}
-
 export const getRoomFilterInterval = ({
   date,
   startTime,
@@ -157,7 +155,7 @@ export const getRoomFilterInterval = ({
     !timeMatch ||
     !Number.isFinite(durationMinutes) ||
     durationMinutes <= 0 ||
-    durationMinutes % ROOM_TIME_STEP_MINUTES !== 0
+    durationMinutes % BOOKING_TIME_STEP_MINUTES !== 0
   ) {
     return undefined;
   }
@@ -170,7 +168,7 @@ export const getRoomFilterInterval = ({
   const numericHour = Number(hour);
   const numericMinute = Number(minute);
 
-  if (numericHour > 23 || numericMinute > 59 || numericMinute % ROOM_TIME_STEP_MINUTES !== 0) {
+  if (numericHour > 23 || numericMinute > 59 || numericMinute % BOOKING_TIME_STEP_MINUTES !== 0) {
     return undefined;
   }
 
@@ -191,7 +189,7 @@ export const getRoomFilterInterval = ({
     return undefined;
   }
 
-  const zonedParts = getZonedDateTimeParts(new Date(localTimestamp), timeZone);
+  const zonedParts = getDateTimePartsInTimeZone(new Date(localTimestamp), timeZone);
   const zonedTimestamp = Date.UTC(
     zonedParts.year,
     zonedParts.month - 1,
@@ -204,4 +202,10 @@ export const getRoomFilterInterval = ({
   const endsAt = new Date(startsAt.getTime() + durationMinutes * 60_000);
 
   return { from: startsAt.toISOString(), to: endsAt.toISOString() };
+};
+
+export const getIsoDateInTimeZone = (date: Date, timeZone: string) => {
+  const parts = getDateTimePartsInTimeZone(date, timeZone);
+
+  return `${parts.year}-${padTimePart(parts.month)}-${padTimePart(parts.day)}`;
 };

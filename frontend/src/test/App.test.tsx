@@ -45,6 +45,15 @@ vi.mock('../api/rooms', () => ({
   ]),
 }));
 
+vi.mock('../api/room', () => ({
+  getRoom: vi.fn().mockImplementation(() => new Promise(() => undefined)),
+  getRoomSchedule: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock('../api/users', () => ({
+  getCurrentUser: vi.fn().mockImplementation(() => new Promise(() => undefined)),
+}));
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();

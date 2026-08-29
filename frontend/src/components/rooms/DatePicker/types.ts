@@ -7,6 +7,8 @@ export interface DatePickerProps {
   disabled?: boolean;
   className?: string;
   placeholder?: string;
+  ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
 }
 
 export type UseDatePickerProps = Pick<DatePickerProps, 'value' | 'min' | 'max' | 'onChange'>;

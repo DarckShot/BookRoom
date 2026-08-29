@@ -1,0 +1,7 @@
+.formPanel.formPanel {
+  width: min(100%, 560px);
+}
+
+.conflictPanel.conflictPanel {
+  width: min(100%, 470px);
+}

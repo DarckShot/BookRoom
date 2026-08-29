@@ -17,6 +17,8 @@ export const CustomSelect = ({
   menuClassName,
   placeholderClassName,
   chevronVisibility = 'always',
+  ariaInvalid = false,
+  ariaDescribedBy,
 }: CustomSelectProps) => {
   const { rootRef, triggerRef, state, meta, actions } = useCustomSelect({
     value,
@@ -36,6 +38,8 @@ export const CustomSelect = ({
         aria-expanded={state.isOpen}
         aria-controls={meta.listboxId}
         aria-haspopup="listbox"
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
         disabled={disabled}
         onClick={actions.toggleMenu}
         onKeyDown={actions.handleTriggerKeyDown}

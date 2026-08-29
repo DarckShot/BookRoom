@@ -22,6 +22,8 @@ export const DatePicker = ({
   disabled = false,
   className,
   placeholder = 'Выберите дату',
+  ariaInvalid = false,
+  ariaDescribedBy,
 }: DatePickerProps) => {
   const { rootRef, triggerRef, state, calendar, actions } = useDatePicker({
     value,
@@ -43,6 +45,8 @@ export const DatePicker = ({
         aria-label="Дата бронирования"
         aria-expanded={state.isOpen}
         aria-haspopup="dialog"
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
         disabled={disabled}
         onClick={actions.toggleCalendar}
       >

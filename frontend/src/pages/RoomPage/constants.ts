@@ -1,0 +1,19 @@
+import {
+  BOOKING_WORKDAY_END_MINUTES,
+  BOOKING_WORKDAY_START_MINUTES,
+} from '../../constants/booking';
+
+const MINUTES_PER_HOUR = 60;
+const SCHEDULE_START_HOUR = BOOKING_WORKDAY_START_MINUTES / MINUTES_PER_HOUR;
+const SCHEDULE_END_HOUR = BOOKING_WORKDAY_END_MINUTES / MINUTES_PER_HOUR;
+
+export const ROOM_SCHEDULE_HOURS = Array.from(
+  { length: SCHEDULE_END_HOUR - SCHEDULE_START_HOUR + 1 },
+  (_, index) => index + SCHEDULE_START_HOUR,
+);
+
+export const ROOM_FEATURE_CODES = {
+  display: 'display',
+  whiteboard: 'whiteboard',
+  video: 'video',
+};

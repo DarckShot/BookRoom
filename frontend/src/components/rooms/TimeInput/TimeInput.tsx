@@ -11,6 +11,8 @@ export const TimeInput = ({
   onChange,
   disabled = false,
   className,
+  ariaInvalid = false,
+  ariaDescribedBy,
 }: TimeInputProps) => {
   const { draft, commitValue, handleChange, handleKeyDown } = useTimeInput({
     value,
@@ -25,6 +27,8 @@ export const TimeInput = ({
       <input
         className={styles.input}
         aria-label="Время начала"
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
         type="text"
         inputMode="numeric"
         autoComplete="off"

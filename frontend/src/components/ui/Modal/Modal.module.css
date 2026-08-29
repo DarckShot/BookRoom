@@ -1,0 +1,45 @@
+.backdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  overflow-y: auto;
+  place-items: center;
+  padding: 32px 20px;
+  background: rgb(30 41 59 / 58%);
+}
+
+.panel {
+  width: min(100%, 550px);
+  max-height: calc(100svh - 64px);
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 22px 55px rgb(15 23 42 / 24%);
+}
+
+.panel:focus {
+  outline: none;
+}
+
+@media (max-height: 800px) and (min-width: 561px) {
+  .backdrop {
+    padding: 8px 20px;
+  }
+
+  .panel {
+    max-height: calc(100svh - 16px);
+  }
+}
+
+@media (max-width: 560px) {
+  .backdrop {
+    align-items: end;
+    padding: 16px 12px;
+  }
+
+  .panel {
+    max-height: calc(100svh - 32px);
+    border-radius: 18px;
+  }
+}
