@@ -6,9 +6,9 @@ import userEvent from '@testing-library/user-event';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { afterEach, describe, expect, it } from 'vitest';
-import { BookingRecurrenceFields } from '../../components/bookings/BookingDialog/BookingRecurrenceFields';
-import { BookingScheduleFields } from '../../components/bookings/BookingDialog/BookingScheduleFields';
-import type { BookingFormValues } from '../../components/bookings/BookingDialog/types';
+import { BookingRecurrenceFields } from '../../components/bookings/BookingDialog/BookingForm/BookingRecurrenceFields';
+import { BookingScheduleFields } from '../../components/bookings/BookingDialog/BookingForm/BookingScheduleFields';
+import type { BookingFormValues } from '../../components/bookings/BookingDialog/model/types';
 
 const defaultValues: BookingFormValues = {
   title: 'Планирование',

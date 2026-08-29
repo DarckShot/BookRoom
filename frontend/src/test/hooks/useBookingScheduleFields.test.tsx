@@ -4,8 +4,8 @@ import { act, cleanup, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { FormProvider, useForm, type UseFormReturn } from 'react-hook-form';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { BookingFormValues } from '../../components/bookings/BookingDialog/types';
-import { useBookingScheduleFields } from '../../components/bookings/BookingDialog/useBookingScheduleFields';
+import type { BookingFormValues } from '../../components/bookings/BookingDialog/model/types';
+import { useBookingScheduleFields } from '../../components/bookings/BookingDialog/model/useBookingScheduleFields';
 
 interface FormHarness {
   current?: UseFormReturn<BookingFormValues>;

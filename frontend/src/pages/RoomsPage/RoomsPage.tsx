@@ -1,6 +1,6 @@
 import { FilterBar } from '../../components/rooms/FilterBar/FilterBar';
-import { RoomsContent } from './RoomsContent';
-import { useRoomsPage } from './useRoomsPage';
+import { RoomsContent } from './states/RoomsContent';
+import { useRoomsPage } from './model/useRoomsPage';
 
 export const RoomsPage = () => {
   const { filterController, roomsContentProps } = useRoomsPage();

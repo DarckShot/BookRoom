@@ -10,7 +10,7 @@ import { RoomCard } from '../../components/rooms/RoomCard/RoomCard';
 import { TimeInput } from '../../components/rooms/TimeInput/TimeInput';
 import { CustomSelect } from '../../components/ui/CustomSelect/CustomSelect';
 import { Modal } from '../../components/ui/Modal/Modal';
-import { RoomFeatureIcon } from '../../pages/RoomPage/RoomFeatureIcon';
+import { RoomFeatureIcon } from '../../pages/RoomPage/components/RoomFeatureIcon';
 import type { Room } from '../../types/room';
 
 afterEach(() => {

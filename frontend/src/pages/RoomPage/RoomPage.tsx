@@ -1,13 +1,13 @@
 import { lazy, Suspense, type ReactNode } from 'react';
 import { BookingSuccessToast } from '../../components/bookings/BookingSuccessToast/BookingSuccessToast';
-import { RoomBreadcrumbs } from './RoomBreadcrumbs';
-import { RoomInfoCard } from './RoomInfoCard';
-import { RoomPageError } from './RoomPageError';
-import { RoomPageLoading } from './RoomPageLoading';
+import { RoomBreadcrumbs } from './components/RoomBreadcrumbs';
+import { RoomInfoCard } from './components/RoomInfoCard';
+import { RoomPageError } from './states/RoomPageError';
+import { RoomPageLoading } from './states/RoomPageLoading';
 import styles from './RoomPage.module.css';
-import { RoomSchedule } from './RoomSchedule';
-import type { RoomPageStatus } from './types';
-import { useRoomPage } from './useRoomPage';
+import { RoomSchedule } from './schedule/RoomSchedule';
+import type { RoomPageStatus } from './model/types';
+import { useRoomPage } from './model/useRoomPage';
 
 const BookingDialog = lazy(() =>
   import('../../components/bookings/BookingDialog/BookingDialog').then((module) => ({

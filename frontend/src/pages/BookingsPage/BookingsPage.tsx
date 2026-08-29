@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
 import { CancelBookingDialog } from '../../components/bookings/CancelBookingDialog/CancelBookingDialog';
-import { BookingsEmptyState } from './BookingsEmptyState';
-import { BookingsErrorState } from './BookingsErrorState';
-import { BookingsList } from './BookingsList';
-import { BookingsLoadingState } from './BookingsLoadingState';
+import { BookingsEmptyState } from './states/BookingsEmptyState';
+import { BookingsErrorState } from './states/BookingsErrorState';
+import { BookingsList } from './components/BookingsList';
+import { BookingsLoadingState } from './states/BookingsLoadingState';
 import styles from './BookingsPage.module.css';
-import { BookingsTabs } from './BookingsTabs';
-import { BookingsToolbar } from './BookingsToolbar';
-import type { BookingsPageStatus } from './types';
-import { useBookingsPage } from './useBookingsPage';
+import { BookingsTabs } from './components/BookingsTabs';
+import { BookingsToolbar } from './components/BookingsToolbar';
+import type { BookingsPageStatus } from './model/types';
+import { useBookingsPage } from './model/useBookingsPage';
 
 export const BookingsPage = () => {
   const { data, status, actions } = useBookingsPage();

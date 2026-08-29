@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { OfficePanelEmpty } from './OfficePanelEmpty';
-import { OfficePanelError } from './OfficePanelError';
-import { OfficePanelLoading } from './OfficePanelLoading';
-import { OfficePanelReady } from './OfficePanelReady';
+import { OfficePanelEmpty } from './states/OfficePanelEmpty';
+import { OfficePanelError } from './states/OfficePanelError';
+import { OfficePanelLoading } from './states/OfficePanelLoading';
+import { OfficePanelReady } from './states/OfficePanelReady';
 import type { OfficePanelProps, OfficePanelStatus } from './types';
 
 export const OfficePanel = ({

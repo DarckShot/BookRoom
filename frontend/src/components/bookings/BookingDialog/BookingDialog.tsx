@@ -1,11 +1,11 @@
 import { FormProvider } from 'react-hook-form';
 import { Modal } from '../../ui/Modal/Modal';
-import { BOOKING_CONFLICT_VIEW, BOOKING_FORM_VIEW } from './constants';
-import { BookingConflict } from './BookingConflict';
-import { BookingForm } from './BookingForm';
+import { BOOKING_CONFLICT_VIEW, BOOKING_FORM_VIEW } from './model/constants';
+import { BookingConflict } from './BookingConflict/BookingConflict';
+import { BookingForm } from './BookingForm/BookingForm';
 import styles from './BookingDialog.module.css';
-import type { BookingDialogProps } from './types';
-import { useBookingDialog } from './useBookingDialog';
+import type { BookingDialogProps } from './model/types';
+import { useBookingDialog } from './model/useBookingDialog';
 
 export const BookingDialog = (props: BookingDialogProps) => {
   const { form, data, status, actions } = useBookingDialog(props);

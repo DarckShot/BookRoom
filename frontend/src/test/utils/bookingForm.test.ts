@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createBookingFormSchema } from '../../components/bookings/BookingDialog/schema';
+import { createBookingFormSchema } from '../../components/bookings/BookingDialog/model/schema';
 import {
   createBookingInputs,
   formatBookingSummary,
@@ -7,7 +7,7 @@ import {
   getBookingEndTime,
   getBookingFormDefaults,
   getBookingOccurrenceOptions,
-} from '../../components/bookings/BookingDialog/utils';
+} from '../../components/bookings/BookingDialog/model/utils';
 
 const createSchema = (getNow = () => new Date('2026-08-29T09:00:00.000Z')) =>
   createBookingFormSchema({ getNow, timeZone: 'Europe/Moscow' });
