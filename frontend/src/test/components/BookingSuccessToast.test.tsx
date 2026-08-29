@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import { useState } from 'react';
 import { act, cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BookingSuccessToast } from '../../components/bookings/BookingSuccessToast/BookingSuccessToast';
 import { BOOKING_SUCCESS_TOAST_DURATION_MS } from '../../components/bookings/BookingSuccessToast/constants';
@@ -30,6 +31,16 @@ afterEach(() => {
 });
 
 describe('BookingSuccessToast', () => {
+  it('показывает серию и закрывается вручную', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<BookingSuccessToast series={{ bookings: [booking, booking] }} onClose={onClose} />);
+
+    expect(screen.getByRole('heading', { name: 'Серия бронирований создана' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Закрыть уведомление' }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it('автоматически скрывается через 10 секунд', () => {
     vi.useFakeTimers();
     render(<BookingSuccessToastHarness />);

@@ -194,6 +194,13 @@ describe('App layout', () => {
 
     await user.click(screen.getByRole('button', { name: 'Дата бронирования' }));
     expect(screen.getByRole('dialog', { name: 'Выбор даты' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '30 августа 2026' }));
+    expect(screen.getByLabelText('Дата бронирования')).toHaveTextContent('30 Августа, Вс');
+
+    const capacity = screen.getByRole('combobox', { name: 'Минимальная вместимость' });
+    await user.click(capacity);
+    await user.click(screen.getByRole('option', { name: '6 чел.' }));
+    expect(capacity).toHaveTextContent('Мин. 6 чел.');
 
     const time = screen.getByRole<HTMLInputElement>('textbox', { name: 'Время начала' });
     const initialTime = time.value;
@@ -299,6 +306,23 @@ describe('App layout', () => {
     expect(getRooms).toHaveBeenCalledTimes(2);
   });
 
+  it('при повторе запроса комнат вручную восстанавливает realtime-соединение', async () => {
+    vi.mocked(getRooms).mockRejectedValueOnce(new Error('Network error'));
+    const reconnect = vi.fn();
+    const user = userEvent.setup();
+    renderApp('/rooms?officeId=office-moscow', {
+      connectionStatus: 'reconnecting',
+      onReconnect: reconnect,
+    });
+
+    await user.click(await screen.findByRole('button', { name: 'Попробовать снова' }));
+
+    expect(reconnect).toHaveBeenCalledOnce();
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeVisible();
+  });
+
   it('показывает состояние WebSocket-соединения, не скрывая REST-данные', async () => {
     const reconnect = vi.fn();
     const user = userEvent.setup();
@@ -357,10 +381,14 @@ describe('App layout', () => {
 
   it('показывает понятную ошибку загрузки офисов', async () => {
     vi.mocked(getOffices).mockRejectedValueOnce(new Error('Network error'));
+    const user = userEvent.setup();
     renderApp('/rooms');
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить офисы');
-    expect(screen.getByRole('button', { name: 'Повторить' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Повторить' }));
+
+    expect(await screen.findByRole('combobox', { name: 'Выберите офис' })).toBeVisible();
+    expect(getOffices).toHaveBeenCalledTimes(2);
   });
 
   it('показывает пустое состояние, если офисов нет', async () => {

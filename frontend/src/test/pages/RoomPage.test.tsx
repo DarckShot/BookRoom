@@ -59,6 +59,18 @@ afterEach(() => {
 });
 
 describe('RoomPage', () => {
+  it('повторяет загрузку страницы после ошибки переговорной', async () => {
+    vi.mocked(getRoom).mockRejectedValueOnce(new Error('Network error'));
+    const user = userEvent.setup();
+    renderApp('/rooms/room-everest');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить переговорную');
+    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
+
+    expect(await screen.findByRole('heading', { name: 'Эверест' })).toBeVisible();
+    expect(getRoom).toHaveBeenCalledTimes(2);
+  });
+
   it('показывает данные комнаты и скрывает названия чужих встреч', async () => {
     renderApp(`/rooms/room-everest?date=${scheduleDate}`);
 
@@ -141,6 +153,30 @@ describe('RoomPage', () => {
     ).toHaveTextContent('1 час (до 16:00)');
   });
 
+  it('закрывает форму бронирования без отправки', async () => {
+    const user = userEvent.setup();
+    renderApp(`/rooms/room-everest?date=${scheduleDate}`);
+
+    await user.click(await screen.findByRole('button', { name: 'Забронировать комнату' }));
+    await user.click(await screen.findByRole('button', { name: 'Отмена' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Новое бронирование' })).not.toBeInTheDocument();
+    expect(createBookingSeries).not.toHaveBeenCalled();
+  });
+
+  it('меняет дату расписания через календарь', async () => {
+    const user = userEvent.setup();
+    renderApp(`/rooms/room-everest?date=${scheduleDate}`);
+
+    await user.click(await screen.findByRole('button', { name: 'Дата бронирования' }));
+    await user.click(screen.getByRole('button', { name: '31 августа 2026' }));
+
+    expect(getRoomSchedule).toHaveBeenLastCalledWith(
+      roomFixture.id,
+      getRoomScheduleInterval('2026-08-31', roomFixture.office.timezone),
+    );
+  });
+
   it('открывает форму с временем выбранного свободного слота расписания', async () => {
     const user = userEvent.setup();
     renderApp(`/rooms/room-everest?date=${scheduleDate}`);
@@ -204,6 +240,41 @@ describe('RoomPage', () => {
     );
     expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Закрыть уведомление' }));
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('показывает состояние отправки формы', async () => {
+    vi.mocked(createBookingSeries).mockImplementationOnce(() => new Promise(() => undefined));
+    const user = userEvent.setup();
+    renderApp(`/rooms/room-everest?date=${scheduleDate}&start=15%3A00&duration=60`);
+
+    await user.click(await screen.findByRole('button', { name: 'Забронировать комнату' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Новое бронирование' });
+    await user.type(within(dialog).getByRole('textbox', { name: 'Тема встречи *' }), 'Демо');
+    await user.click(within(dialog).getByRole('button', { name: 'Забронировать' }));
+
+    expect(within(dialog).getByRole('button', { name: 'Бронируем…' })).toBeDisabled();
+    expect(within(dialog).getByRole('button', { name: 'Отмена' })).toBeDisabled();
+
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('dialog', { name: 'Новое бронирование' })).toBeVisible();
+  });
+
+  it('показывает безопасную ошибку неизвестного сбоя создания', async () => {
+    vi.mocked(createBookingSeries).mockRejectedValueOnce(new Error('Network error'));
+    const user = userEvent.setup();
+    renderApp(`/rooms/room-everest?date=${scheduleDate}&start=15%3A00&duration=60`);
+
+    await user.click(await screen.findByRole('button', { name: 'Забронировать комнату' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Новое бронирование' });
+    await user.type(within(dialog).getByRole('textbox', { name: 'Тема встречи *' }), 'Демо');
+    await user.click(within(dialog).getByRole('button', { name: 'Забронировать' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Не удалось создать бронирование. Попробуйте ещё раз',
+    );
   });
 
   it('обрабатывает 409 и сохраняет введённые данные', async () => {

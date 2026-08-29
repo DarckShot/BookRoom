@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:watch": "vitest --watch",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage && node scripts/verify-coverage.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

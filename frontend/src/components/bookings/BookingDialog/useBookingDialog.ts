@@ -68,12 +68,6 @@ export const useBookingDialog = ({
 
   const submit = form.handleSubmit((values) => {
     const inputs = createBookingInputs(values, room.id, room.office.timezone);
-
-    if (inputs.length === 0) {
-      form.setError('root.server', { message: 'Проверьте выбранные дату и время' });
-      return;
-    }
-
     mutation.reset();
     mutation.mutate(inputs);
   });

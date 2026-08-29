@@ -58,6 +58,37 @@ afterEach(() => {
 });
 
 describe('useRealtimeConnection', () => {
+  it('закрывает ошибочный сокет и позволяет переподключиться вручную', () => {
+    const { result, unmount } = renderRealtimeConnection();
+    const firstSocket = MockWebSocket.instances[0];
+    const close = vi.spyOn(firstSocket, 'close');
+
+    act(() => firstSocket.dispatchEvent(new Event('error')));
+    expect(close).toHaveBeenCalledOnce();
+    expect(result.current.status).toBe('reconnecting');
+
+    act(() => result.current.reconnect());
+    expect(MockWebSocket.instances).toHaveLength(2);
+
+    const secondSocket = MockWebSocket.instances[1];
+    const secondClose = vi.spyOn(secondSocket, 'close');
+    unmount();
+    expect(secondClose).toHaveBeenCalledOnce();
+  });
+
+  it('не планирует несколько reconnect для повторных close-событий', () => {
+    renderRealtimeConnection();
+    const socket = MockWebSocket.instances[0];
+
+    act(() => {
+      socket.dispatchEvent(new Event('close'));
+      socket.dispatchEvent(new Event('close'));
+      vi.advanceTimersByTime(REALTIME_RECONNECT_DELAY_MS);
+    });
+
+    expect(MockWebSocket.instances).toHaveLength(2);
+  });
+
   it('переходит в reconnecting после закрытия WebSocket и восстанавливает соединение', () => {
     const { result, invalidateQueries } = renderRealtimeConnection();
     const firstSocket = MockWebSocket.instances[0];

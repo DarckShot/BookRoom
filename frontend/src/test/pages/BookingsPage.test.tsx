@@ -118,6 +118,9 @@ describe('BookingsPage', () => {
     expect(await screen.findByText('Ретроспектива команды')).toBeVisible();
     expect(screen.queryByText('Daily Sync: Разработка & Продукт')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Отменить' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Предстоящие (1)' }));
+    expect(await screen.findByText('Daily Sync: Разработка & Продукт')).toBeVisible();
   });
 
   it('фильтрует запрос по офису и список по периоду', async () => {
@@ -159,6 +162,17 @@ describe('BookingsPage', () => {
       'href',
       '/rooms',
     );
+  });
+
+  it('показывает отдельное пустое состояние прошедших бронирований', async () => {
+    vi.mocked(getBookings).mockResolvedValueOnce([]);
+    renderApp('/bookings?scope=past');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Нет прошедших бронирований' }),
+    ).toBeVisible();
+    expect(screen.getByText('Завершённые встречи появятся в этом разделе.')).toBeVisible();
+    expect(screen.queryByRole('link', { name: 'Перейти к переговорным' })).not.toBeInTheDocument();
   });
 
   it('показывает ошибку загрузки и повторяет запрос', async () => {

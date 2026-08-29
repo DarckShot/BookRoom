@@ -18,7 +18,7 @@ jobs:
         include:
           - project: frontend
             working-directory: frontend
-            test-command: npm test -- --run
+            test-command: npm run test:coverage
           - project: server
             working-directory: server
             test-command: npm test

@@ -35,6 +35,18 @@ const createWrapper = (values: BookingFormValues, harness: FormHarness) => {
 afterEach(cleanup);
 
 describe('useBookingScheduleFields', () => {
+  it('сохраняет длительность при выборе обычного времени', () => {
+    const harness: FormHarness = {};
+    const { result } = renderHook(() => useBookingScheduleFields('2026-09-28'), {
+      wrapper: createWrapper(defaultValues, harness),
+    });
+
+    act(() => result.current.actions.changeStartTime('16:00'));
+
+    expect(harness.current?.getValues('startTime')).toBe('16:00');
+    expect(harness.current?.getValues('durationMinutes')).toBe(60);
+  });
+
   it('сокращает длительность, если новое время близко к концу рабочего дня', () => {
     const harness: FormHarness = {};
     const { result } = renderHook(() => useBookingScheduleFields('2026-09-28'), {
@@ -71,5 +83,20 @@ describe('useBookingScheduleFields', () => {
 
     expect(harness.current?.getValues('isRecurring')).toBe(true);
     expect(harness.current?.getValues('occurrenceCount')).toBe(3);
+  });
+
+  it('меняет дату без побочных изменений для одиночной встречи', () => {
+    const harness: FormHarness = {};
+    const { result } = renderHook(() => useBookingScheduleFields('2026-09-28'), {
+      wrapper: createWrapper(defaultValues, harness),
+    });
+
+    act(() => result.current.actions.changeDate('2026-09-01'));
+
+    expect(harness.current?.getValues()).toMatchObject({
+      date: '2026-09-01',
+      isRecurring: false,
+      occurrenceCount: 1,
+    });
   });
 });
