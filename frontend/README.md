@@ -30,7 +30,7 @@ npm run dev
 ## Проверки
 
 ```bash
-npm test -- --run
+npm run test:run
 npm run test:coverage
 npm run test:e2e
 npm run test:e2e:ui
@@ -45,6 +45,8 @@ npm run format:check
 - TypeScript;
 - TanStack Query для серверного состояния;
 - Axios для HTTP;
+- React Hook Form и Zod для форм и валидации;
+- date-fns и `Intl.DateTimeFormat` для работы с датами и часовыми поясами;
 - CSS Modules;
 - Vitest и React Testing Library;
 - Playwright для E2E-проверки сценариев задания;
@@ -56,27 +58,30 @@ npm run format:check
 src/
 ├── api/          HTTP-функции, query keys/options и QueryClient
 ├── assets/       SVG-иконки по доменам
-├── components/   переиспользуемые layout, rooms и UI-компоненты
-├── constants/    статические опции и имена URL-параметров
-├── hooks/        URL-состояние фильтров и локальные UI-хуки
+├── components/   app-, layout-, rooms-, bookings- и UI-компоненты
+├── constants/    ограничения бронирования, опции и имена URL-параметров
+├── contexts/     контекст состояния WebSocket-соединения
+├── hooks/        URL-состояние фильтров и UI/realtime-хуки
 ├── pages/        route-level компоненты
 ├── router/       дерево маршрутов и централизованные пути
 ├── test/         unit/integration/E2E-тесты и тестовые утилиты
 ├── types/        API, доменные и композиционные интерфейсы
-└── utils/        чистая логика времени, офиса и отображения
+└── utils/        чистая логика дат, времени, расписания и iCalendar
 ```
 
-HTTP-функции не зависят от React. TanStack Query-конфигурация хранится отдельно в
-`api/queryOptions.ts`, поэтому её можно переиспользовать при инвалидации данных и обработке
-WebSocket-событий.
+HTTP-функции не зависят от React. Query keys и TanStack Query-конфигурация централизованы в
+`api/queryKeys.ts` и `api/queryOptions.ts`. Мутации и WebSocket-события используют общие query
+keys и функции из `api/queryInvalidation.ts`, чтобы синхронизировать серверное состояние через
+REST.
 
 Фильтры принадлежат странице переговорных. Хук `useRoomFilters` преобразует URL в типизированные
 значения и API-интервал, а `FilterBar` получает только композиционный интерфейс
 `state/actions/meta`. Серверные данные не копируются в локальное или глобальное состояние.
 
 Дополнительные возможности задания также реализованы: WebSocket автоматически переподключается
-с последующей REST-синхронизацией, отмена выполняется оптимистично, бронирование можно скачать в
-формате iCalendar, а в форме доступна еженедельная серия встреч.
+с последующей REST-синхронизацией и обновляет доступность всего списка комнат, отмена выполняется
+оптимистично, бронирование можно скачать в формате iCalendar, а в форме доступна еженедельная
+серия встреч.
 
 ## Принятые решения
 

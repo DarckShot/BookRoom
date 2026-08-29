@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createBookingSeries } from '../../../../api/bookings';
 import { isApiError } from '../../../../api/errors';
-import { invalidateRoomAvailability } from '../../../../api/queryInvalidation';
-import { queryKeys } from '../../../../api/queryKeys';
+import { invalidateBookingRelatedQueries } from '../../../../api/queryInvalidation';
 import { BOOKING_MAX_ADVANCE_DAYS } from '../../../../constants/booking';
 import { addDaysToIsoDate, getIsoDateInTimeZone } from '../../../../utils/roomFilters';
 import {
@@ -46,14 +45,14 @@ export const useBookingDialog = ({
   const mutation = useMutation({
     mutationFn: createBookingSeries,
     onSuccess: (bookings) => {
-      void invalidateRoomAvailability(queryClient);
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
+      void invalidateBookingRelatedQueries(queryClient);
       onCreated({ bookings });
     },
     onError: (error) => {
+      void invalidateBookingRelatedQueries(queryClient);
+
       if (isApiError(error, BOOKING_CONFLICT_STATUS, BOOKING_CONFLICT_CODE)) {
         setView(BOOKING_CONFLICT_VIEW);
-        void invalidateRoomAvailability(queryClient);
         return;
       }
 

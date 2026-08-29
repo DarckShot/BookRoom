@@ -6,3 +6,9 @@ export const invalidateRoomAvailability = (queryClient: QueryClient) =>
     queryClient.invalidateQueries({ queryKey: queryKeys.roomListsRoot }),
     queryClient.invalidateQueries({ queryKey: queryKeys.roomSchedulesRoot }),
   ]);
+
+export const invalidateBookingRelatedQueries = (queryClient: QueryClient) =>
+  Promise.all([
+    invalidateRoomAvailability(queryClient),
+    queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot }),
+  ]);

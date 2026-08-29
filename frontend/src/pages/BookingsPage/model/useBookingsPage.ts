@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { cancelBooking } from '../../../api/bookings';
 import { getApiErrorMessage } from '../../../api/errors';
 import { queryKeys } from '../../../api/queryKeys';
-import { invalidateRoomAvailability } from '../../../api/queryInvalidation';
+import { invalidateBookingRelatedQueries } from '../../../api/queryInvalidation';
 import { bookingsQueryOptions, officesQueryOptions } from '../../../api/queryOptions';
 import {
   ALL_BOOKINGS_SCOPE,
@@ -68,8 +68,7 @@ export const useBookingsPage = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
-      void invalidateRoomAvailability(queryClient);
+      void invalidateBookingRelatedQueries(queryClient);
     },
   });
 

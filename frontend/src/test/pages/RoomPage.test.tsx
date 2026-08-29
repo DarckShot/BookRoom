@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createBookingSeries } from '../../api/bookings';
@@ -275,6 +275,7 @@ describe('RoomPage', () => {
     expect(await within(dialog).findByRole('alert')).toHaveTextContent(
       'Не удалось создать бронирование. Попробуйте ещё раз',
     );
+    await waitFor(() => expect(getRoomSchedule).toHaveBeenCalledTimes(2));
   });
 
   it('обрабатывает 409 и сохраняет введённые данные', async () => {
