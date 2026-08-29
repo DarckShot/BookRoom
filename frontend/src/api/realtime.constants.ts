@@ -5,3 +5,5 @@ export const ROOM_REALTIME_EVENT_TYPES = new Set([
   'booking.cancelled',
   'room.availability_changed',
 ]);
+
+export const BOOKING_REALTIME_EVENT_TYPES = new Set(['booking.created', 'booking.cancelled']);

@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
+import { getBookings, type BookingsQuery } from './bookings';
 import { getOffices } from './offices';
 import { queryKeys } from './queryKeys';
 import { getRoom, getRoomSchedule, type RoomScheduleQuery } from './room';
@@ -34,4 +35,10 @@ export const roomScheduleQueryOptions = (roomId: string, query?: RoomScheduleQue
     queryKey: queryKeys.roomSchedule(roomId, query),
     queryFn: () => (query ? getRoomSchedule(roomId, query) : Promise.resolve([])),
     enabled: roomId.length > 0 && query !== undefined,
+  });
+
+export const bookingsQueryOptions = (query: BookingsQuery) =>
+  queryOptions({
+    queryKey: queryKeys.bookings(query),
+    queryFn: () => getBookings(query),
   });

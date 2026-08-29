@@ -23,3 +23,7 @@ export interface CreateBookingInput {
   startsAt: string;
   endsAt: string;
 }
+
+export type BookingScope = 'upcoming' | 'past' | 'all';
+export type BookingsTab = Exclude<BookingScope, 'all'>;
+export type BookingPeriod = 'all' | 'today' | 'seven-days' | 'thirty-days';

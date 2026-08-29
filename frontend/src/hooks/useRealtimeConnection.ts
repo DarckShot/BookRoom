@@ -1,7 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { queryKeys } from '../api/queryKeys';
-import { affectsRooms, getRealtimeEventType, getRealtimeUrl } from '../api/realtime';
+import {
+  affectsBookings,
+  affectsRooms,
+  getRealtimeEventType,
+  getRealtimeUrl,
+} from '../api/realtime';
 import { REALTIME_RECONNECT_DELAY_MS } from '../api/realtime.constants';
 import type { RealtimeConnectionStatus, RealtimeController } from '../types/realtime';
 
@@ -18,6 +23,7 @@ export const useRealtimeConnection = (): RealtimeController => {
     const resync = () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.offices });
       void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
     };
 
     const handleMessage = (event: MessageEvent<unknown>) => {
@@ -34,6 +40,10 @@ export const useRealtimeConnection = (): RealtimeController => {
 
       if (eventType && affectsRooms(eventType)) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+      }
+
+      if (eventType && affectsBookings(eventType)) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
       }
     };
 

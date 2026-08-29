@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getOffices } from '../api/offices';
 import { getRooms } from '../api/rooms';
 import { renderApp } from './utils/renderApp';
@@ -45,6 +45,12 @@ vi.mock('../api/rooms', () => ({
   ]),
 }));
 
+vi.mock('../api/bookings', () => ({
+  getBookings: vi.fn().mockResolvedValue([]),
+  cancelBooking: vi.fn(),
+  createBooking: vi.fn(),
+}));
+
 vi.mock('../api/room', () => ({
   getRoom: vi.fn().mockImplementation(() => new Promise(() => undefined)),
   getRoomSchedule: vi.fn().mockResolvedValue([]),
@@ -54,9 +60,14 @@ vi.mock('../api/users', () => ({
   getCurrentUser: vi.fn().mockImplementation(() => new Promise(() => undefined)),
 }));
 
+beforeEach(() => {
+  vi.setSystemTime(new Date('2026-08-29T09:00:00.000Z'));
+});
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 const selectOffice = async (user: ReturnType<typeof userEvent.setup>, officeName: string) => {
@@ -179,6 +190,21 @@ describe('App layout', () => {
       expect.stringContaining('/rooms/room-everest'),
     );
     expect(screen.getByRole('link', { name: 'Забронировать' })).toBeVisible();
+  });
+
+  it('оставляет текущую дату доступной, пока помещается минимальная бронь', async () => {
+    vi.setSystemTime(new Date('2026-08-29T16:27:00.000Z'));
+    renderApp('/rooms?officeId=office-moscow');
+
+    await screen.findByRole('region', { name: 'Офис Москва' });
+
+    expect(screen.getByLabelText('Дата бронирования')).toHaveTextContent('29 Августа, Сб');
+    expect(screen.getByLabelText('Время начала')).toHaveValue('19:30');
+    expect(screen.getByLabelText('Длительность')).toHaveTextContent('30 мин');
+    expect(await screen.findByRole('link', { name: 'Забронировать' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('date=2026-08-29'),
+    );
   });
 
   it('заменяет некорректные числовые URL-фильтры безопасными значениями', async () => {

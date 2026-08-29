@@ -58,4 +58,26 @@ describe('useRealtimeConnection', () => {
     act(() => reconnectedSocket.dispatchEvent(new Event('open')));
     expect(result.current.status).toBe('connected');
   });
+
+  it('обновляет кэш бронирований после WebSocket-события', () => {
+    const queryClient = new QueryClient();
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    renderHook(useRealtimeConnection, { wrapper });
+    const socket = MockWebSocket.instances[0];
+
+    act(() => socket.dispatchEvent(new Event('open')));
+    invalidateQueries.mockClear();
+    act(() =>
+      socket.dispatchEvent(
+        new MessageEvent('message', {
+          data: JSON.stringify({ type: 'booking.cancelled' }),
+        }),
+      ),
+    );
+
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['bookings'] });
+  });
 });

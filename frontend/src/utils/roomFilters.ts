@@ -1,5 +1,6 @@
 import {
   BOOKING_DEFAULT_DURATION_MINUTES,
+  BOOKING_MIN_DURATION_MINUTES,
   BOOKING_TIME_STEP_MINUTES,
   BOOKING_WORKDAY_END_MINUTES,
   BOOKING_WORKDAY_START_MINUTES,
@@ -101,15 +102,19 @@ export const getDefaultRoomFilters = (now: Date, timeZone: string): RoomFilterVa
     startMinutes = BOOKING_WORKDAY_START_MINUTES;
   }
 
-  if (startMinutes + BOOKING_DEFAULT_DURATION_MINUTES > BOOKING_WORKDAY_END_MINUTES) {
+  const availableDurationMinutes = BOOKING_WORKDAY_END_MINUTES - startMinutes;
+  let durationMinutes = Math.min(BOOKING_DEFAULT_DURATION_MINUTES, availableDurationMinutes);
+
+  if (availableDurationMinutes < BOOKING_MIN_DURATION_MINUTES) {
     date = addDaysToIsoDate(date, 1);
     startMinutes = BOOKING_WORKDAY_START_MINUTES;
+    durationMinutes = BOOKING_DEFAULT_DURATION_MINUTES;
   }
 
   return {
     date,
     startTime: formatMinutesAsTime(startMinutes),
-    durationMinutes: BOOKING_DEFAULT_DURATION_MINUTES,
+    durationMinutes,
     minCapacity: 4,
   };
 };

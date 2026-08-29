@@ -54,7 +54,7 @@ export const CustomSelect = ({
         >
           {state.selectedOption?.displayLabel ?? state.selectedOption?.label ?? placeholder}
         </span>
-        {chevronVisibility === 'always' || !disabled ? (
+        {chevronVisibility !== 'never' && (chevronVisibility === 'always' || !disabled) ? (
           <ChevronDownIcon className={classNames(styles.chevron, state.isOpen && styles.open)} />
         ) : null}
       </button>

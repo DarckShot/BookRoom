@@ -1,9 +1,8 @@
-import { ROOM_REALTIME_EVENT_TYPES } from './realtime.constants';
-
-const getApiBaseUrl = () => import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1';
+import { BOOKING_REALTIME_EVENT_TYPES, ROOM_REALTIME_EVENT_TYPES } from './realtime.constants';
+import { API_BASE_URL } from './constants';
 
 export const getRealtimeUrl = () => {
-  const url = new URL(getApiBaseUrl(), window.location.origin);
+  const url = new URL(API_BASE_URL, window.location.origin);
   url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
   url.pathname = `${url.pathname.replace(/\/$/, '')}/ws`;
   url.search = '';
@@ -27,3 +26,5 @@ export const getRealtimeEventType = (payload: string) => {
 };
 
 export const affectsRooms = (eventType: string) => ROOM_REALTIME_EVENT_TYPES.has(eventType);
+
+export const affectsBookings = (eventType: string) => BOOKING_REALTIME_EVENT_TYPES.has(eventType);

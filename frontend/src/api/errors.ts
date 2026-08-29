@@ -8,3 +8,8 @@ export const isApiError = (error: unknown, status: number, code?: string) => {
 
   return code === undefined || error.response.data.error.code === code;
 };
+
+export const getApiErrorMessage = (error: unknown, fallback: string) =>
+  isAxiosError<ApiErrorResponse>(error)
+    ? (error.response?.data.error.message ?? fallback)
+    : fallback;

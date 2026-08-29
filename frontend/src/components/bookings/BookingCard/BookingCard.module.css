@@ -1,0 +1,140 @@
+.card {
+  display: flex;
+  min-height: 128px;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.date {
+  display: flex;
+  width: 80px;
+  height: 80px;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #f8fafc;
+  font-style: normal;
+}
+
+.month {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.day {
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 30px;
+}
+
+.content {
+  min-width: 0;
+  flex: 1;
+}
+
+.title {
+  overflow: hidden;
+  margin-bottom: 10px;
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 25px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metadata,
+.room {
+  display: flex;
+  align-items: center;
+}
+
+.metadata {
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.room {
+  gap: 7px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.roomIcon {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.separator {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.cancelButton {
+  min-width: 102px;
+  min-height: 40px;
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.cancelButton:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.cancelButton:focus-visible {
+  outline: 3px solid rgb(239 68 68 / 24%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+  .card {
+    position: relative;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .date {
+    width: 64px;
+    height: 72px;
+  }
+
+  .title {
+    padding-right: 0;
+    white-space: normal;
+  }
+
+  .cancelButton {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+  }
+
+  .metadata {
+    padding-bottom: 52px;
+  }
+}

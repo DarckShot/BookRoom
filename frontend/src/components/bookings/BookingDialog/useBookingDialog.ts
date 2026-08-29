@@ -47,6 +47,7 @@ export const useBookingDialog = ({
     mutationFn: (input: CreateBookingInput) => createBooking(input),
     onSuccess: (booking) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
       onCreated(booking);
     },
     onError: (error) => {

@@ -11,6 +11,7 @@ import {
   getRoomFilterInterval,
 } from '../utils/roomFilters';
 import {
+  createRoomFilterSearch,
   parsePositiveInteger,
   parseRoomStartTime,
   updateSearchParam,
@@ -112,6 +113,6 @@ export const useRoomFilters = ({ officeId, officeTimezone }: UseRoomFiltersInput
       },
     } satisfies RoomFiltersController,
     roomsQuery,
-    search: searchParams.toString(),
+    search: createRoomFilterSearch(searchParams, officeId, values),
   };
 };

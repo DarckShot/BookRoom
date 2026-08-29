@@ -23,6 +23,8 @@ vi.mock('../../api/users', () => ({
 
 vi.mock('../../api/bookings', () => ({
   createBooking: vi.fn(),
+  getBookings: vi.fn(),
+  cancelBooking: vi.fn(),
 }));
 
 const today = '2026-08-29';
@@ -128,6 +130,9 @@ describe('RoomPage', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Новое бронирование' });
 
     expect(dialog).toHaveTextContent('Переговорная: Эверест (Офис Москва, 4 этаж)');
+    expect(within(dialog).getByRole('button', { name: 'Дата бронирования' })).toHaveTextContent(
+      '30 Августа, Вс',
+    );
     expect(within(dialog).getByRole('textbox', { name: 'Время начала' })).toHaveValue('15:00');
     expect(
       within(dialog).getByRole('combobox', { name: 'Продолжительность бронирования' }),

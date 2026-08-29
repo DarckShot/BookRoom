@@ -13,7 +13,7 @@ export interface CustomSelectProps {
   triggerClassName?: string;
   menuClassName?: string;
   placeholderClassName?: string;
-  chevronVisibility?: 'always' | 'enabled';
+  chevronVisibility?: 'always' | 'enabled' | 'never';
   ariaInvalid?: boolean;
   ariaDescribedBy?: string;
 }
