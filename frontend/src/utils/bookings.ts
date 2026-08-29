@@ -8,8 +8,42 @@ import type { Booking, BookingPeriod, BookingsTab } from '../types/booking';
 import { capitalize } from './string';
 import { getIsoDateInTimeZone } from './roomFilters';
 
-const createBookingFormatter = (timeZone: string, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('ru-RU', { timeZone, ...options });
+interface BookingFormatters {
+  month: Intl.DateTimeFormat;
+  day: Intl.DateTimeFormat;
+  time: Intl.DateTimeFormat;
+  confirmationDate: Intl.DateTimeFormat;
+}
+
+const bookingFormatters = new Map<string, BookingFormatters>();
+
+const getBookingFormatters = (timeZone: string) => {
+  const cachedFormatters = bookingFormatters.get(timeZone);
+
+  if (cachedFormatters) {
+    return cachedFormatters;
+  }
+
+  const formatters: BookingFormatters = {
+    month: new Intl.DateTimeFormat('ru-RU', { timeZone, month: 'long' }),
+    day: new Intl.DateTimeFormat('ru-RU', { timeZone, day: 'numeric' }),
+    time: new Intl.DateTimeFormat('ru-RU', {
+      timeZone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }),
+    confirmationDate: new Intl.DateTimeFormat('ru-RU', {
+      timeZone,
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    }),
+  };
+  bookingFormatters.set(timeZone, formatters);
+
+  return formatters;
+};
 
 export const isUpcomingBooking = (booking: Booking, now: Date) =>
   new Date(booking.startsAt).getTime() > now.getTime();
@@ -62,21 +96,15 @@ export const filterBookings = (
     });
 
 export const formatBookingMonth = (booking: Booking) =>
-  createBookingFormatter(booking.office.timezone, { month: 'long' })
-    .format(new Date(booking.startsAt))
+  getBookingFormatters(booking.office.timezone)
+    .month.format(new Date(booking.startsAt))
     .toUpperCase();
 
 export const formatBookingDay = (booking: Booking) =>
-  createBookingFormatter(booking.office.timezone, { day: 'numeric' }).format(
-    new Date(booking.startsAt),
-  );
+  getBookingFormatters(booking.office.timezone).day.format(new Date(booking.startsAt));
 
 export const formatBookingTimeRange = (booking: Booking) => {
-  const formatter = createBookingFormatter(booking.office.timezone, {
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  });
+  const formatter = getBookingFormatters(booking.office.timezone).time;
 
   return `${formatter.format(new Date(booking.startsAt))} - ${formatter.format(
     new Date(booking.endsAt),
@@ -101,11 +129,7 @@ export const formatBookingTimeZone = (timeZone: string) => {
 };
 
 export const formatBookingConfirmationDate = (booking: Booking) => {
-  const formatter = createBookingFormatter(booking.office.timezone, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
+  const formatter = getBookingFormatters(booking.office.timezone).confirmationDate;
 
   return `${capitalize(formatter.format(new Date(booking.startsAt)))}, ${formatBookingTimeRange(
     booking,

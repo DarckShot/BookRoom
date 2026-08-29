@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createBookingSeries } from '../../../../api/bookings';
 import { isApiError } from '../../../../api/errors';
+import { invalidateRoomAvailability } from '../../../../api/queryInvalidation';
 import { queryKeys } from '../../../../api/queryKeys';
 import { BOOKING_MAX_ADVANCE_DAYS } from '../../../../constants/booking';
 import { addDaysToIsoDate, getIsoDateInTimeZone } from '../../../../utils/roomFilters';
@@ -45,24 +46,20 @@ export const useBookingDialog = ({
   const mutation = useMutation({
     mutationFn: createBookingSeries,
     onSuccess: (bookings) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+      void invalidateRoomAvailability(queryClient);
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
       onCreated({ bookings });
     },
     onError: (error) => {
       if (isApiError(error, BOOKING_CONFLICT_STATUS, BOOKING_CONFLICT_CODE)) {
         setView(BOOKING_CONFLICT_VIEW);
-        void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+        void invalidateRoomAvailability(queryClient);
         return;
       }
 
       form.setError('root.server', {
         message: 'Не удалось создать бронирование. Попробуйте ещё раз',
       });
-    },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
     },
   });
 

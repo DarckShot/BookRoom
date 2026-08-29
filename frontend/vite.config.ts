@@ -16,6 +16,8 @@ export default defineConfig({
   },
 
   test: {
+    setupFiles: ['./src/test/setup.ts'],
+
     coverage: {
       provider: 'v8',
 

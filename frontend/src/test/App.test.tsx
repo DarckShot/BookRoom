@@ -108,7 +108,7 @@ describe('App layout', () => {
     renderApp('/rooms?officeId=office-moscow');
 
     expect(screen.queryByRole('heading', { name: 'Выберите офис' })).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Загрузка переговорных…' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Загрузка переговорных…' })).toBeVisible();
 
     await act(async () => {
       resolveOffices([
@@ -147,7 +147,7 @@ describe('App layout', () => {
     expect(await screen.findByRole('region', { name: 'Офис Москва' })).toBeVisible();
 
     await user.click(screen.getByRole('link', { name: 'Мои бронирования' }));
-    expect(screen.getByRole('heading', { name: 'Мои бронирования' })).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Мои бронирования' })).toBeVisible();
 
     await user.click(screen.getByRole('link', { name: 'Переговорные' }));
 
@@ -162,7 +162,7 @@ describe('App layout', () => {
     renderApp('/rooms');
 
     expect(await screen.findByRole('combobox', { name: 'Выберите офис' })).toHaveValue('');
-    expect(screen.getByLabelText('Дата бронирования')).toBeDisabled();
+    expect(await screen.findByLabelText('Дата бронирования')).toBeDisabled();
     expect(screen.getByLabelText('Время начала')).toBeDisabled();
     expect(screen.getByLabelText('Длительность')).toBeDisabled();
     expect(screen.getByLabelText('Минимальная вместимость')).toBeDisabled();
@@ -177,7 +177,7 @@ describe('App layout', () => {
 
     await selectOffice(user, 'Офис Москва');
 
-    expect(screen.getByLabelText('Дата бронирования')).toBeEnabled();
+    expect(await screen.findByLabelText('Дата бронирования')).toBeEnabled();
     expect(screen.getByLabelText('Время начала')).toBeEnabled();
     expect(screen.getByLabelText('Длительность')).toHaveTextContent('1 час');
     expect(screen.getByLabelText('Минимальная вместимость')).toHaveTextContent('Мин. 4 чел.');

@@ -13,15 +13,14 @@ import { addDaysToIsoDate, getIsoDateInTimeZone } from '../../../utils/roomFilte
 import { getRoomScheduleInterval, isValidRoomScheduleDate } from '../../../utils/roomSchedule';
 import { getRoomPageStatus, getRoomScheduleStatus } from './utils';
 import type { CreatedBookingSeries } from '../../../types/booking';
+import type { BookingFlowState } from './types';
 
 export const useRoomPage = () => {
   const { roomId = '' } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const realtime = useRealtime();
   const now = useCurrentTime();
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [bookingStartTime, setBookingStartTime] = useState<string>();
-  const [createdSeries, setCreatedSeries] = useState<CreatedBookingSeries>();
+  const [bookingFlow, setBookingFlow] = useState<BookingFlowState>({ status: 'idle' });
   const roomQuery = useQuery(roomQueryOptions(roomId));
   const currentUserQuery = useQuery(currentUserQueryOptions);
   const today = roomQuery.data ? getIsoDateInTimeZone(now, roomQuery.data.office.timezone) : '';
@@ -57,28 +56,23 @@ export const useRoomPage = () => {
   };
 
   const openBooking = () => {
-    setCreatedSeries(undefined);
-    setBookingStartTime(undefined);
-    setIsBookingOpen(true);
+    setBookingFlow({ status: 'booking' });
   };
 
   const openBookingAt = (startTime: string) => {
-    setCreatedSeries(undefined);
-    setBookingStartTime(startTime);
-    setIsBookingOpen(true);
+    setBookingFlow({ status: 'booking', startTime });
   };
 
   const closeBooking = () => {
-    setIsBookingOpen(false);
+    setBookingFlow({ status: 'idle' });
   };
 
   const finishBooking = (series: CreatedBookingSeries) => {
-    setIsBookingOpen(false);
-    setCreatedSeries(series);
+    setBookingFlow({ status: 'created', series });
   };
 
   const dismissBookingSuccess = () => {
-    setCreatedSeries(undefined);
+    setBookingFlow({ status: 'idle' });
   };
 
   return {
@@ -90,9 +84,9 @@ export const useRoomPage = () => {
       minDate: today,
       maxDate,
       search: searchParams.toString(),
-      isBookingOpen,
-      bookingStartTime,
-      createdSeries,
+      isBookingOpen: bookingFlow.status === 'booking',
+      bookingStartTime: bookingFlow.status === 'booking' ? bookingFlow.startTime : undefined,
+      createdSeries: bookingFlow.status === 'created' ? bookingFlow.series : undefined,
       now,
     },
     status: {

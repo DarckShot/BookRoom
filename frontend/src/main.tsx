@@ -1,4 +1,3 @@
-import '@fontsource-variable/manrope';
 import { createRoot } from 'react-dom/client';
 import { AppProviders } from './components/app/AppProviders/AppProviders';
 import './index.css';

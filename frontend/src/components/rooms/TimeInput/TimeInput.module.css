@@ -34,6 +34,10 @@
   line-height: 19px;
 }
 
+.input:focus {
+  outline: none;
+}
+
 .input::placeholder {
   color: #99a3b0;
   opacity: 1;

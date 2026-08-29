@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useRef, type MouseEvent, type ReactNode } fr
 import { createPortal } from 'react-dom';
 import { classNames } from '../../../utils/classNames';
 import styles from './Modal.module.css';
+import { getModalFocusableElements, trapModalFocus } from './utils';
 
 interface ModalProps {
   ariaLabelledBy: string;
@@ -15,18 +16,26 @@ export const Modal = ({ ariaLabelledBy, children, onClose, panelClassName }: Mod
   const close = useEffectEvent(onClose);
 
   useEffect(() => {
+    const panel = panelRef.current;
+
+    if (!panel) {
+      return;
+    }
+
     const previousActiveElement = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const firstControl = panelRef.current?.querySelector<HTMLElement>(
-      'input:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]',
-    );
-    (firstControl ?? panelRef.current)?.focus();
+    const firstControl = getModalFocusableElements(panel)[0];
+    (firstControl ?? panel).focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        event.preventDefault();
         close();
+        return;
       }
+
+      trapModalFocus(event, panel);
     };
 
     document.addEventListener('keydown', handleKeyDown);

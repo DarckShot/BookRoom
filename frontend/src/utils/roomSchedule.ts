@@ -58,17 +58,18 @@ export const getAvailableRoomScheduleSlots = (
 ): AvailableRoomScheduleSlot[] => {
   const slotCount = BOOKING_WORKDAY_DURATION_MINUTES / BOOKING_TIME_STEP_MINUTES;
   const slotHeight = 100 / slotCount;
+  const occupiedIntervals = bookings.map((booking) => ({
+    startsAt: getMinutesInTimeZone(booking.startsAt, timeZone),
+    endsAt: getMinutesInTimeZone(booking.endsAt, timeZone),
+  }));
 
   return Array.from({ length: slotCount }, (_, index) => {
     const startsAt = BOOKING_WORKDAY_START_MINUTES + index * BOOKING_TIME_STEP_MINUTES;
     const startTime = formatMinutesAsTime(startsAt);
     const endsAt = startsAt + BOOKING_TIME_STEP_MINUTES;
-    const isOccupied = bookings.some((booking) => {
-      const bookingStartsAt = getMinutesInTimeZone(booking.startsAt, timeZone);
-      const bookingEndsAt = getMinutesInTimeZone(booking.endsAt, timeZone);
-
-      return bookingStartsAt < endsAt && bookingEndsAt > startsAt;
-    });
+    const isOccupied = occupiedIntervals.some(
+      (booking) => booking.startsAt < endsAt && booking.endsAt > startsAt,
+    );
 
     return isOccupied || startTime < minimumStartTime
       ? []

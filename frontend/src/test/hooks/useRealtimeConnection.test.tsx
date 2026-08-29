@@ -13,9 +13,21 @@ interface RealtimeEventExpectation {
 }
 
 const REALTIME_EVENT_EXPECTATIONS: RealtimeEventExpectation[] = [
-  { eventType: 'booking.created', queryKeys: [['rooms'], ['bookings']] },
-  { eventType: 'booking.cancelled', queryKeys: [['rooms'], ['bookings']] },
-  { eventType: 'room.availability_changed', queryKeys: [['rooms']] },
+  {
+    eventType: 'booking.created',
+    queryKeys: [['rooms', 'list'], ['rooms', 'schedule'], ['bookings']],
+  },
+  {
+    eventType: 'booking.cancelled',
+    queryKeys: [['rooms', 'list'], ['rooms', 'schedule'], ['bookings']],
+  },
+  {
+    eventType: 'room.availability_changed',
+    queryKeys: [
+      ['rooms', 'list'],
+      ['rooms', 'schedule'],
+    ],
+  },
   { eventType: 'data.reset', queryKeys: [['offices'], ['rooms'], ['bookings']] },
 ];
 
@@ -98,8 +110,8 @@ describe('useRealtimeConnection', () => {
 
     act(() => firstSocket.dispatchEvent(new Event('open')));
     expect(result.current.status).toBe('connected');
+    expect(invalidateQueries).not.toHaveBeenCalled();
 
-    invalidateQueries.mockClear();
     act(() => firstSocket.dispatchEvent(new Event('close')));
     expect(result.current.status).toBe('reconnecting');
 

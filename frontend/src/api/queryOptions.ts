@@ -9,6 +9,7 @@ import { getCurrentUser } from './users';
 export const officesQueryOptions = queryOptions({
   queryKey: queryKeys.offices,
   queryFn: getOffices,
+  staleTime: Infinity,
 });
 
 export const roomsQueryOptions = (query?: RoomsQuery) =>
@@ -21,6 +22,7 @@ export const roomsQueryOptions = (query?: RoomsQuery) =>
 export const currentUserQueryOptions = queryOptions({
   queryKey: queryKeys.currentUser,
   queryFn: getCurrentUser,
+  staleTime: Infinity,
 });
 
 export const roomQueryOptions = (roomId: string) =>
@@ -28,6 +30,7 @@ export const roomQueryOptions = (roomId: string) =>
     queryKey: queryKeys.room(roomId),
     queryFn: () => getRoom(roomId),
     enabled: roomId.length > 0,
+    staleTime: Infinity,
   });
 
 export const roomScheduleQueryOptions = (roomId: string, query?: RoomScheduleQuery) =>

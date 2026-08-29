@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { invalidateRoomAvailability } from '../api/queryInvalidation';
 import { queryKeys } from '../api/queryKeys';
 import {
   affectsBookings,
@@ -14,6 +15,7 @@ export const useRealtimeConnection = (): RealtimeController => {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<RealtimeConnectionStatus>('connecting');
   const [connectionAttempt, setConnectionAttempt] = useState(0);
+  const hasConnected = useRef(false);
 
   useEffect(() => {
     let socket: WebSocket | undefined;
@@ -39,7 +41,7 @@ export const useRealtimeConnection = (): RealtimeController => {
       }
 
       if (eventType && affectsRooms(eventType)) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+        void invalidateRoomAvailability(queryClient);
       }
 
       if (eventType && affectsBookings(eventType)) {
@@ -61,7 +63,12 @@ export const useRealtimeConnection = (): RealtimeController => {
         }
 
         setStatus('connected');
-        resync();
+
+        if (hasConnected.current) {
+          resync();
+        } else {
+          hasConnected.current = true;
+        }
       });
       nextSocket.addEventListener('message', handleMessage);
       nextSocket.addEventListener('error', () => nextSocket.close());

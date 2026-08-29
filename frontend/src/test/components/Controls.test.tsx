@@ -182,10 +182,15 @@ describe('interactive controls', () => {
         <Modal ariaLabelledBy="modal-title" onClose={onClose}>
           <h2 id="modal-title">Подтверждение</h2>
           <button type="button">Действие</button>
+          <button type="button">Закрыть</button>
         </Modal>
       </>,
     );
 
+    expect(screen.getByRole('button', { name: 'Действие' })).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(screen.getByRole('button', { name: 'Закрыть' })).toHaveFocus();
+    await user.tab();
     expect(screen.getByRole('button', { name: 'Действие' })).toHaveFocus();
     expect(document.body.style.overflow).toBe('hidden');
     fireEvent.mouseDown(screen.getByRole('dialog'));
@@ -199,14 +204,18 @@ describe('interactive controls', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
-  it('фокусирует панель модального окна без интерактивных элементов', () => {
+  it('фокусирует панель модального окна без интерактивных элементов', async () => {
+    const user = userEvent.setup();
     render(
       <Modal ariaLabelledBy="empty-modal-title" onClose={vi.fn()}>
         <h2 id="empty-modal-title">Информация</h2>
       </Modal>,
     );
 
-    expect(screen.getByRole('dialog', { name: 'Информация' })).toHaveFocus();
+    const dialog = screen.getByRole('dialog', { name: 'Информация' });
+    expect(dialog).toHaveFocus();
+    await user.tab();
+    expect(dialog).toHaveFocus();
   });
 
   it('показывает недоступную комнату без действия бронирования', () => {

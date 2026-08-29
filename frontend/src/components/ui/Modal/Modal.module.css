@@ -4,6 +4,7 @@
   inset: 0;
   display: grid;
   overflow-y: auto;
+  overscroll-behavior: contain;
   place-items: center;
   padding: 32px 20px;
   background: rgb(30 41 59 / 58%);

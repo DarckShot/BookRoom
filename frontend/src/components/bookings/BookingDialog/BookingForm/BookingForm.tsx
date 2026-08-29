@@ -56,6 +56,7 @@ export const BookingForm = ({
             id="booking-title"
             className={classNames(styles.control, errors.title && styles.invalidControl)}
             type="text"
+            autoComplete="off"
             placeholder="Укажите тему встречи"
             aria-invalid={Boolean(errors.title)}
             aria-describedby={errors.title ? 'booking-title-error' : undefined}
@@ -81,6 +82,7 @@ export const BookingForm = ({
               styles.comment,
               errors.comment && styles.invalidControl,
             )}
+            autoComplete="off"
             placeholder="Дополнительная информация для участников встречи..."
             aria-invalid={Boolean(errors.comment)}
             aria-describedby={errors.comment ? 'booking-comment-error' : undefined}
