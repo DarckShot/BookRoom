@@ -14,6 +14,7 @@ TypeScript, получает серверные данные из предост
 
 ```bash
 npm ci
+npx playwright install chromium
 ```
 
 Запустить frontend в режиме разработки:
@@ -30,6 +31,9 @@ npm run dev
 
 ```bash
 npm test -- --run
+npm run test:coverage
+npm run test:e2e
+npm run test:e2e:ui
 npm run build
 npm run lint
 npm run format:check
@@ -43,6 +47,7 @@ npm run format:check
 - Axios для HTTP;
 - CSS Modules;
 - Vitest и React Testing Library;
+- Playwright для E2E-проверки сценариев задания;
 - Vite.
 
 ## Архитектура
@@ -56,7 +61,7 @@ src/
 ├── hooks/        URL-состояние фильтров и локальные UI-хуки
 ├── pages/        route-level компоненты
 ├── router/       дерево маршрутов и централизованные пути
-├── test/         тесты и тестовые утилиты
+├── test/         unit/integration/E2E-тесты и тестовые утилиты
 ├── types/        API, доменные и композиционные интерфейсы
 └── utils/        чистая логика времени, офиса и отображения
 ```
