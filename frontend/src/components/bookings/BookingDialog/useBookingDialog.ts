@@ -2,11 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { createBooking } from '../../../api/bookings';
+import { createBookingSeries } from '../../../api/bookings';
 import { isApiError } from '../../../api/errors';
 import { queryKeys } from '../../../api/queryKeys';
 import { BOOKING_MAX_ADVANCE_DAYS } from '../../../constants/booking';
-import type { CreateBookingInput } from '../../../types/booking';
 import { addDaysToIsoDate, getIsoDateInTimeZone } from '../../../utils/roomFilters';
 import {
   BOOKING_CONFLICT_CODE,
@@ -16,7 +15,7 @@ import {
 } from './constants';
 import { createBookingFormSchema } from './schema';
 import type { BookingDialogProps, BookingDialogView, BookingFormValues } from './types';
-import { createBookingInterval, getBookingFormDefaults } from './utils';
+import { createBookingInputs, getBookingFormDefaults } from './utils';
 
 export const useBookingDialog = ({
   room,
@@ -44,11 +43,11 @@ export const useBookingDialog = ({
     }),
   });
   const mutation = useMutation({
-    mutationFn: (input: CreateBookingInput) => createBooking(input),
-    onSuccess: (booking) => {
+    mutationFn: createBookingSeries,
+    onSuccess: (bookings) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
-      onCreated(booking);
+      onCreated({ bookings });
     },
     onError: (error) => {
       if (isApiError(error, BOOKING_CONFLICT_STATUS, BOOKING_CONFLICT_CODE)) {
@@ -61,24 +60,22 @@ export const useBookingDialog = ({
         message: 'Не удалось создать бронирование. Попробуйте ещё раз',
       });
     },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
+    },
   });
 
   const submit = form.handleSubmit((values) => {
-    const interval = createBookingInterval(values, room.office.timezone);
+    const inputs = createBookingInputs(values, room.id, room.office.timezone);
 
-    if (!interval) {
+    if (inputs.length === 0) {
       form.setError('root.server', { message: 'Проверьте выбранные дату и время' });
       return;
     }
 
     mutation.reset();
-    mutation.mutate({
-      roomId: room.id,
-      title: values.title.trim(),
-      comment: values.comment.trim() || null,
-      startsAt: interval.from,
-      endsAt: interval.to,
-    });
+    mutation.mutate(inputs);
   });
 
   const cancel = () => {

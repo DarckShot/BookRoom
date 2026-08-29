@@ -36,6 +36,7 @@ interface BookingFixtureInput {
   title?: string;
   startsAt?: string;
   endsAt?: string;
+  comment?: string | null;
 }
 
 export const createBookingFixture = ({
@@ -44,6 +45,7 @@ export const createBookingFixture = ({
   title = 'Daily Sync',
   startsAt = '2026-08-30T08:00:00.000Z',
   endsAt = '2026-08-30T09:00:00.000Z',
+  comment = null,
 }: BookingFixtureInput = {}): Booking => ({
   id,
   userId,
@@ -51,7 +53,7 @@ export const createBookingFixture = ({
   startsAt,
   endsAt,
   roomId: roomFixture.id,
-  comment: null,
+  comment,
   createdAt: '2026-08-29T08:00:00.000Z',
   room: {
     id: roomFixture.id,

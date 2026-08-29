@@ -12,7 +12,7 @@ import { useCurrentTime } from '../../hooks/useCurrentTime';
 import { addDaysToIsoDate, getIsoDateInTimeZone } from '../../utils/roomFilters';
 import { getRoomScheduleInterval, isValidRoomScheduleDate } from '../../utils/roomSchedule';
 import { getRoomPageStatus, getRoomScheduleStatus } from './utils';
-import type { Booking } from '../../types/booking';
+import type { CreatedBookingSeries } from '../../types/booking';
 
 export const useRoomPage = () => {
   const { roomId = '' } = useParams();
@@ -21,7 +21,7 @@ export const useRoomPage = () => {
   const now = useCurrentTime();
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingStartTime, setBookingStartTime] = useState<string>();
-  const [createdBooking, setCreatedBooking] = useState<Booking>();
+  const [createdSeries, setCreatedSeries] = useState<CreatedBookingSeries>();
   const roomQuery = useQuery(roomQueryOptions(roomId));
   const currentUserQuery = useQuery(currentUserQueryOptions);
   const today = roomQuery.data ? getIsoDateInTimeZone(now, roomQuery.data.office.timezone) : '';
@@ -57,13 +57,13 @@ export const useRoomPage = () => {
   };
 
   const openBooking = () => {
-    setCreatedBooking(undefined);
+    setCreatedSeries(undefined);
     setBookingStartTime(undefined);
     setIsBookingOpen(true);
   };
 
   const openBookingAt = (startTime: string) => {
-    setCreatedBooking(undefined);
+    setCreatedSeries(undefined);
     setBookingStartTime(startTime);
     setIsBookingOpen(true);
   };
@@ -72,13 +72,13 @@ export const useRoomPage = () => {
     setIsBookingOpen(false);
   };
 
-  const finishBooking = (booking: Booking) => {
+  const finishBooking = (series: CreatedBookingSeries) => {
     setIsBookingOpen(false);
-    setCreatedBooking(booking);
+    setCreatedSeries(series);
   };
 
   const dismissBookingSuccess = () => {
-    setCreatedBooking(undefined);
+    setCreatedSeries(undefined);
   };
 
   return {
@@ -92,12 +92,12 @@ export const useRoomPage = () => {
       search: searchParams.toString(),
       isBookingOpen,
       bookingStartTime,
-      createdBooking,
+      createdSeries,
       now,
     },
     status: {
       page: getRoomPageStatus(roomQuery.status, currentUserQuery.status),
-      schedule: getRoomScheduleStatus(realtime.status, scheduleQuery.status),
+      schedule: getRoomScheduleStatus(scheduleQuery.status),
     },
     actions: {
       changeDate,

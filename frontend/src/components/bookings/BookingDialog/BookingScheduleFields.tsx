@@ -14,7 +14,7 @@ interface BookingScheduleFieldsProps {
 }
 
 export const BookingScheduleFields = ({ minDate, maxDate }: BookingScheduleFieldsProps) => {
-  const { control, data, status, actions } = useBookingScheduleFields();
+  const { control, data, status, actions } = useBookingScheduleFields(maxDate);
   const errors = status.errors;
 
   return (
@@ -34,7 +34,7 @@ export const BookingScheduleFields = ({ minDate, maxDate }: BookingScheduleField
                 formattedValue={formatRoomFilterDate(field.value)}
                 ariaInvalid={Boolean(errors.date)}
                 ariaDescribedBy={errors.date ? 'booking-date-error' : undefined}
-                onChange={field.onChange}
+                onChange={actions.changeDate}
               />
             )}
           />

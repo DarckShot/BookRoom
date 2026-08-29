@@ -1,4 +1,4 @@
-import type { Booking } from '../../../types/booking';
+import type { CreatedBookingSeries } from '../../../types/booking';
 import type { Room } from '../../../types/room';
 import { BOOKING_CONFLICT_VIEW, BOOKING_FORM_VIEW } from './constants';
 
@@ -13,6 +13,8 @@ export interface BookingIntervalValues {
 export interface BookingFormValues extends BookingIntervalValues {
   title: string;
   comment: string;
+  isRecurring: boolean;
+  occurrenceCount: number;
 }
 
 export interface BookingDialogProps {
@@ -21,5 +23,5 @@ export interface BookingDialogProps {
   initialStartTime?: string;
   search: string;
   onClose: () => void;
-  onCreated: (booking: Booking) => void;
+  onCreated: (series: CreatedBookingSeries) => void;
 }

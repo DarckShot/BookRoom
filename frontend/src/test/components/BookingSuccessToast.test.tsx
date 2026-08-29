@@ -6,6 +6,7 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BookingSuccessToast } from '../../components/bookings/BookingSuccessToast/BookingSuccessToast';
 import { BOOKING_SUCCESS_TOAST_DURATION_MS } from '../../components/bookings/BookingSuccessToast/constants';
+import { formatCreatedBooking } from '../../components/bookings/BookingSuccessToast/utils';
 import { createBookingFixture } from '../fixtures/booking';
 
 const booking = createBookingFixture({
@@ -19,7 +20,7 @@ const BookingSuccessToastHarness = () => {
   const [isVisible, setIsVisible] = useState(true);
 
   return isVisible ? (
-    <BookingSuccessToast booking={booking} onClose={() => setIsVisible(false)} />
+    <BookingSuccessToast series={{ bookings: [booking] }} onClose={() => setIsVisible(false)} />
   ) : null;
 };
 
@@ -40,5 +41,13 @@ describe('BookingSuccessToast', () => {
 
     act(() => vi.advanceTimersByTime(1));
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('форматирует одиночное бронирование, серию и пустой результат', () => {
+    expect(formatCreatedBooking({ bookings: [] })).toBe('');
+    expect(formatCreatedBooking({ bookings: [booking] })).not.toContain('еженедельно');
+    expect(formatCreatedBooking({ bookings: [booking, booking] })).toContain(
+      'еженедельно · 2 встречи',
+    );
   });
 });

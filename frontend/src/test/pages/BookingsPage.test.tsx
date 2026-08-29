@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cancelBooking, getBookings } from '../../api/bookings';
@@ -13,6 +13,7 @@ vi.mock('../../api/bookings', () => ({
   getBookings: vi.fn(),
   cancelBooking: vi.fn(),
   createBooking: vi.fn(),
+  createBookingSeries: vi.fn(),
 }));
 
 vi.mock('../../api/offices', () => ({
@@ -50,6 +51,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.unstubAllGlobals();
   vi.useRealTimers();
 });
 
@@ -70,8 +72,40 @@ describe('BookingsPage', () => {
     expect(screen.getByText('4 этаж')).toBeVisible();
     expect(screen.getByText('11:00 - 12:00 MSK')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Отменить' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'В календарь' })).toBeVisible();
     expect(screen.queryByText('Ретроспектива команды')).not.toBeInTheDocument();
     expect(getBookings).toHaveBeenCalledWith({ scope: 'all' });
+  });
+
+  it('показывает reconnect поверх загруженных бронирований', async () => {
+    const reconnect = vi.fn();
+    const user = userEvent.setup();
+    renderApp('/bookings', { connectionStatus: 'reconnecting', onReconnect: reconnect });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Daily Sync: Разработка & Продукт' }),
+    ).toBeVisible();
+    expect(screen.getByText('Соединение потеряно. Переподключение...')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Повторить сейчас' }));
+    expect(reconnect).toHaveBeenCalledOnce();
+  });
+
+  it('скачивает бронирование в формате iCalendar', async () => {
+    const createObjectURL = vi.fn(() => 'blob:booking-calendar');
+    const revokeObjectURL = vi.fn();
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
+    const user = userEvent.setup();
+    renderApp('/bookings');
+
+    await user.click(await screen.findByRole('button', { name: 'В календарь' }));
+
+    expect(createObjectURL).toHaveBeenCalledOnce();
+    expect(click).toHaveBeenCalledOnce();
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:booking-calendar');
   });
 
   it('переключается на прошедшие бронирования без возможности отмены', async () => {
@@ -144,8 +178,15 @@ describe('BookingsPage', () => {
     expect(getBookings).toHaveBeenCalledTimes(2);
   });
 
-  it('подтверждает отмену и обновляет список только после ответа backend', async () => {
+  it('оптимистично убирает бронирование и сверяется с backend после ответа', async () => {
     vi.mocked(getBookings).mockResolvedValueOnce([futureBooking]).mockResolvedValue([]);
+    let resolveCancellation: (() => void) | undefined;
+    vi.mocked(cancelBooking).mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveCancellation = resolve;
+        }),
+    );
     const user = userEvent.setup();
     renderApp('/bookings');
 
@@ -164,6 +205,9 @@ describe('BookingsPage', () => {
 
     expect(cancelBooking).toHaveBeenCalledWith('booking-future', expect.any(Object));
     expect(await screen.findByRole('heading', { name: 'Нет бронирований' })).toBeVisible();
+
+    act(() => resolveCancellation?.());
+    await waitFor(() => expect(getBookings).toHaveBeenCalledTimes(2));
   });
 
   it('сохраняет подтверждение открытым при ошибке отмены', async () => {
@@ -178,5 +222,6 @@ describe('BookingsPage', () => {
     expect(
       within(dialog).getByText('Не удалось отменить бронирование. Попробуйте снова'),
     ).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Daily Sync: Разработка & Продукт' })).toBeVisible();
   });
 });

@@ -85,14 +85,23 @@
   background: #94a3b8;
 }
 
+.actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendarButton,
 .cancelButton {
+  display: inline-flex;
   min-width: 102px;
   min-height: 40px;
-  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 10px 16px;
-  border: 1px solid #ef4444;
   border-radius: 8px;
-  color: #ef4444;
   font-size: 14px;
   font-weight: 600;
   transition:
@@ -100,11 +109,32 @@
     background 160ms ease;
 }
 
+.calendarButton {
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.calendarButton svg {
+  width: 17px;
+  height: 17px;
+}
+
+.calendarButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.cancelButton {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
 .cancelButton:hover {
   background: #ef4444;
   color: #ffffff;
 }
 
+.calendarButton:focus-visible,
 .cancelButton:focus-visible {
   outline: 3px solid rgb(239 68 68 / 24%);
   outline-offset: 2px;
@@ -128,13 +158,13 @@
     white-space: normal;
   }
 
-  .cancelButton {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
+  .actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .metadata {
-    padding-bottom: 52px;
+    padding-bottom: 8px;
   }
 }

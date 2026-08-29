@@ -51,11 +51,8 @@ export const RoomPage = () => {
           />
         </Suspense>
       ) : null}
-      {data.createdBooking ? (
-        <BookingSuccessToast
-          booking={data.createdBooking}
-          onClose={actions.dismissBookingSuccess}
-        />
+      {data.createdSeries ? (
+        <BookingSuccessToast series={data.createdSeries} onClose={actions.dismissBookingSuccess} />
       ) : null}
     </>
   ) : (

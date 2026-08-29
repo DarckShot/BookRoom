@@ -1,6 +1,6 @@
-import type { Booking } from '../../../types/booking';
+import type { CreatedBookingSeries } from '../../../types/booking';
 
 export interface BookingSuccessToastProps {
-  booking: Booking;
+  series: CreatedBookingSeries;
   onClose: () => void;
 }

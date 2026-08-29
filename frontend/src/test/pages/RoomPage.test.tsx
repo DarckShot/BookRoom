@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createBooking } from '../../api/bookings';
+import { createBookingSeries } from '../../api/bookings';
 import { getRoom, getRoomSchedule } from '../../api/room';
 import { getCurrentUser } from '../../api/users';
 import { getRoomFilterInterval } from '../../utils/roomFilters';
@@ -23,6 +23,7 @@ vi.mock('../../api/users', () => ({
 
 vi.mock('../../api/bookings', () => ({
   createBooking: vi.fn(),
+  createBookingSeries: vi.fn(),
   getBookings: vi.fn(),
   cancelBooking: vi.fn(),
 }));
@@ -42,13 +43,13 @@ beforeEach(() => {
     }),
     createBookingFixture({ id: 'booking-other', userId: 'user-anna', title: 'Секретная встреча' }),
   ]);
-  vi.mocked(createBooking).mockResolvedValue(
+  vi.mocked(createBookingSeries).mockResolvedValue([
     createBookingFixture({
       id: 'booking-created',
       userId: currentUserFixture.id,
       title: 'Новая встреча',
     }),
-  );
+  ]);
 });
 
 afterEach(() => {
@@ -104,7 +105,7 @@ describe('RoomPage', () => {
     expect(getRoomSchedule).toHaveBeenCalledTimes(2);
   });
 
-  it('показывает ошибку расписания при потере realtime-соединения', async () => {
+  it('показывает reconnect и сохраняет расписание при потере realtime-соединения', async () => {
     const reconnect = vi.fn();
     const user = userEvent.setup();
     renderApp(`/rooms/room-everest?date=${scheduleDate}`, {
@@ -113,9 +114,10 @@ describe('RoomPage', () => {
     });
 
     expect(await screen.findByRole('heading', { name: 'Эверест' })).toBeVisible();
-    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить расписание');
+    expect(await screen.findByRole('heading', { name: 'Расписание на день' })).toBeVisible();
+    expect(screen.getByText('Соединение потеряно. Переподключение...')).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
+    await user.click(screen.getByRole('button', { name: 'Повторить сейчас' }));
 
     expect(reconnect).toHaveBeenCalledOnce();
   });
@@ -169,7 +171,7 @@ describe('RoomPage', () => {
     );
     expect(comment).toHaveAttribute('aria-invalid', 'true');
     expect(within(dialog).getByText('Не более 2000 символов')).toBeVisible();
-    expect(createBooking).not.toHaveBeenCalled();
+    expect(createBookingSeries).not.toHaveBeenCalled();
   });
 
   it('создаёт бронирование, обновляет расписание и показывает success-toast', async () => {
@@ -188,19 +190,24 @@ describe('RoomPage', () => {
       durationMinutes: 60,
       timeZone: roomFixture.office.timezone,
     });
-    expect(createBooking).toHaveBeenCalledWith({
-      roomId: roomFixture.id,
-      title: 'Демо',
-      comment: 'Обсудить релиз',
-      startsAt: interval?.from,
-      endsAt: interval?.to,
-    });
+    expect(createBookingSeries).toHaveBeenCalledWith(
+      [
+        {
+          roomId: roomFixture.id,
+          title: 'Демо',
+          comment: 'Обсудить релиз',
+          startsAt: interval?.from,
+          endsAt: interval?.to,
+        },
+      ],
+      expect.any(Object),
+    );
     expect(await screen.findByRole('status')).toHaveTextContent('Бронирование создано');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('обрабатывает 409 и сохраняет введённые данные', async () => {
-    vi.mocked(createBooking).mockRejectedValueOnce(
+    vi.mocked(createBookingSeries).mockRejectedValueOnce(
       Object.assign(new Error('Conflict'), {
         isAxiosError: true,
         response: {
@@ -225,5 +232,27 @@ describe('RoomPage', () => {
 
     expect(await screen.findByRole('dialog', { name: 'Новое бронирование' })).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Тема встречи *' })).toHaveValue('Планирование');
+  });
+
+  it('создаёт еженедельную серию бронирований', async () => {
+    const user = userEvent.setup();
+    renderApp(`/rooms/room-everest?date=${scheduleDate}&start=15%3A00&duration=60`);
+
+    await user.click(await screen.findByRole('button', { name: 'Забронировать комнату' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Новое бронирование' });
+    await user.type(within(dialog).getByRole('textbox', { name: 'Тема встречи *' }), 'Синк');
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Повторять еженедельно' }));
+    await user.click(within(dialog).getByRole('combobox', { name: 'Количество встреч' }));
+    await user.click(within(dialog).getByRole('option', { name: '3 встречи' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Забронировать' }));
+
+    expect(createBookingSeries).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ startsAt: '2026-08-30T12:00:00.000Z' }),
+        expect.objectContaining({ startsAt: '2026-09-06T12:00:00.000Z' }),
+        expect.objectContaining({ startsAt: '2026-09-13T12:00:00.000Z' }),
+      ]),
+      expect.any(Object),
+    );
   });
 });

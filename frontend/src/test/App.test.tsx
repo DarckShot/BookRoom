@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, screen } from '@testing-library/react';
+import { act, cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getOffices } from '../api/offices';
 import { getRooms } from '../api/rooms';
+import type { Office } from '../types/office';
 import { renderApp } from './utils/renderApp';
 
 vi.mock('../api/offices', () => ({
@@ -49,6 +50,7 @@ vi.mock('../api/bookings', () => ({
   getBookings: vi.fn().mockResolvedValue([]),
   cancelBooking: vi.fn(),
   createBooking: vi.fn(),
+  createBookingSeries: vi.fn(),
 }));
 
 vi.mock('../api/room', () => ({
@@ -92,6 +94,38 @@ describe('App layout', () => {
     expect(await screen.findByRole('region', { name: 'Офис Москва' })).toBeVisible();
     expect(screen.getByText('ул. Лесная 7')).toBeVisible();
     expect(screen.getByText(/Местное время:/)).toBeVisible();
+  });
+
+  it('не показывает пустое состояние до восстановления офиса из URL', async () => {
+    let resolveOffices: (offices: Office[]) => void = () => undefined;
+    vi.mocked(getOffices).mockImplementationOnce(
+      () =>
+        new Promise<Office[]>((resolve) => {
+          resolveOffices = resolve;
+        }),
+    );
+
+    renderApp('/rooms?officeId=office-moscow');
+
+    expect(screen.queryByRole('heading', { name: 'Выберите офис' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Загрузка переговорных…' })).toBeVisible();
+
+    await act(async () => {
+      resolveOffices([
+        {
+          id: 'office-moscow',
+          name: 'Офис Москва',
+          address: 'Москва, ул. Лесная, 7',
+          timezone: 'Europe/Moscow',
+        },
+      ]);
+    });
+
+    expect(await screen.findByRole('region', { name: 'Офис Москва' })).toBeVisible();
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeVisible();
+    expect(screen.queryByRole('heading', { name: 'Выберите офис' })).not.toBeInTheDocument();
   });
 
   it('позволяет выбрать другой офис', async () => {
@@ -243,6 +277,7 @@ describe('App layout', () => {
 
     expect(await screen.findByRole('heading', { name: 'Загрузка переговорных…' })).toBeVisible();
     expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'true');
+    await waitFor(() => expect(getRooms).toHaveBeenCalledOnce());
   });
 
   it('показывает ошибку загрузки переговорных и позволяет повторить запрос', async () => {
@@ -264,7 +299,7 @@ describe('App layout', () => {
     expect(getRooms).toHaveBeenCalledTimes(2);
   });
 
-  it('показывает экран ошибки при потере WebSocket-соединения', async () => {
+  it('показывает состояние WebSocket-соединения, не скрывая REST-данные', async () => {
     const reconnect = vi.fn();
     const user = userEvent.setup();
     renderApp('/rooms?officeId=office-moscow', {
@@ -272,12 +307,24 @@ describe('App layout', () => {
       onReconnect: reconnect,
     });
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось загрузить данные');
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeVisible();
     expect(screen.getByText('Соединение потеряно. Переподключение...')).toBeVisible();
 
-    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
+    await user.click(screen.getByRole('button', { name: 'Повторить сейчас' }));
 
     expect(reconnect).toHaveBeenCalledOnce();
+  });
+
+  it('не показывает служебное состояние при первоначальном подключении WebSocket', async () => {
+    renderApp('/rooms?officeId=office-moscow', { connectionStatus: 'connecting' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Доступные переговорные в этом офисе' }),
+    ).toBeVisible();
+    expect(screen.queryByText('Соединение потеряно. Переподключение...')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Повторить сейчас' })).not.toBeInTheDocument();
   });
 
   it('показывает пустое состояние для пустого ответа комнат и сбрасывает фильтры', async () => {

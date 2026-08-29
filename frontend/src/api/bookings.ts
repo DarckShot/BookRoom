@@ -21,6 +21,21 @@ export const createBooking = async (input: CreateBookingInput) => {
   return response.data;
 };
 
+export const createBookingSeries = async (inputs: CreateBookingInput[]) => {
+  const createdBookings: Booking[] = [];
+
+  try {
+    for (const input of inputs) {
+      createdBookings.push(await createBooking(input));
+    }
+  } catch (error) {
+    await Promise.allSettled(createdBookings.map((booking) => cancelBooking(booking.id)));
+    throw error;
+  }
+
+  return createdBookings;
+};
+
 export const cancelBooking = async (bookingId: string) => {
   await apiClient.delete(`/bookings/${bookingId}`);
 };

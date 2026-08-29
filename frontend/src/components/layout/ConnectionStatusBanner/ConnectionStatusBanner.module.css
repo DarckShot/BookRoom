@@ -23,6 +23,23 @@
   flex: 0 0 auto;
 }
 
+.banner button {
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px currentColor;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.banner button:hover {
+  background: rgb(146 64 14 / 10%);
+}
+
+.banner button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 @media (max-width: 480px) {
   .banner {
     justify-content: flex-start;

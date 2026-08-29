@@ -5,7 +5,7 @@ import { BOOKING_SUCCESS_TOAST_DURATION_MS } from './constants';
 import type { BookingSuccessToastProps } from './types';
 import { formatCreatedBooking } from './utils';
 
-export const BookingSuccessToast = ({ booking, onClose }: BookingSuccessToastProps) => {
+export const BookingSuccessToast = ({ series, onClose }: BookingSuccessToastProps) => {
   const close = useEffectEvent(onClose);
 
   useEffect(() => {
@@ -20,8 +20,10 @@ export const BookingSuccessToast = ({ booking, onClose }: BookingSuccessToastPro
         <SuccessCheckIcon />
       </span>
       <div>
-        <h2>Бронирование создано</h2>
-        <p>{formatCreatedBooking(booking)}</p>
+        <h2>
+          {series.bookings.length === 1 ? 'Бронирование создано' : 'Серия бронирований создана'}
+        </h2>
+        <p>{formatCreatedBooking(series)}</p>
       </div>
       <button type="button" aria-label="Закрыть уведомление" onClick={onClose}>
         <CloseCircleIcon />

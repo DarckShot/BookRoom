@@ -24,6 +24,10 @@ export interface CreateBookingInput {
   endsAt: string;
 }
 
+export interface CreatedBookingSeries {
+  bookings: Booking[];
+}
+
 export type BookingScope = 'upcoming' | 'past' | 'all';
 export type BookingsTab = Exclude<BookingScope, 'all'>;
 export type BookingPeriod = 'all' | 'today' | 'seven-days' | 'thirty-days';

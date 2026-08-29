@@ -5,12 +5,12 @@ import styles from './RoomsLayout.module.css';
 import { useRoomsLayout } from './useRoomsLayout';
 
 export const RoomsLayout = () => {
-  const { selectedOffice, officePanelProps } = useRoomsLayout();
+  const { selectedOffice, officesStatus, officePanelProps } = useRoomsLayout();
 
   return (
     <div className={styles.layout}>
       <OfficePanel {...officePanelProps} />
-      <Outlet context={{ selectedOffice } satisfies RoomsLayoutContextValue} />
+      <Outlet context={{ selectedOffice, officesStatus } satisfies RoomsLayoutContextValue} />
     </div>
   );
 };

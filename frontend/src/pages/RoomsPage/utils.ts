@@ -1,4 +1,3 @@
-import type { RealtimeConnectionStatus } from '../../types/realtime';
 import type { RoomsContentStatus } from './types';
 
 type QueryStatus = 'pending' | 'error' | 'success';
@@ -15,13 +14,13 @@ const getLoadedRoomsStatus = (queryStatus: QueryStatus, roomCount: number): Room
 };
 
 export const getRoomsContentStatus = (
+  officesStatus: QueryStatus,
   hasSelectedOffice: boolean,
-  connectionStatus: RealtimeConnectionStatus,
   queryStatus: QueryStatus,
   roomCount: number,
 ): RoomsContentStatus => {
-  if (connectionStatus === 'reconnecting') {
-    return 'error';
+  if (officesStatus === 'pending') {
+    return 'loading';
   }
 
   if (!hasSelectedOffice) {

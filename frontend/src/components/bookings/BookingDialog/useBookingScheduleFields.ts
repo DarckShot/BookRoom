@@ -6,10 +6,10 @@ import {
 } from '../../../constants/booking';
 import { getTimeAsMinutes } from '../../../utils/roomFilters';
 import type { BookingFormValues } from './types';
-import { getBookingDurationOptions } from './utils';
+import { getBookingDurationOptions, getBookingOccurrenceOptions } from './utils';
 
-export const useBookingScheduleFields = () => {
-  const { control, setValue, formState } = useFormContext<BookingFormValues>();
+export const useBookingScheduleFields = (maxDate: string) => {
+  const { control, getValues, setValue, formState } = useFormContext<BookingFormValues>();
   const [watchedStartTime, watchedDurationMinutes] = useWatch({
     control,
     name: ['startTime', 'durationMinutes'],
@@ -27,6 +27,24 @@ export const useBookingScheduleFields = () => {
     }
   };
 
+  const changeDate = (nextDate: string) => {
+    setValue('date', nextDate, { shouldValidate: formState.isSubmitted });
+    const occurrenceOptions = getBookingOccurrenceOptions(nextDate, maxDate);
+    const maximumOccurrenceCount = Number(occurrenceOptions.at(-1)?.value ?? 1);
+
+    if (getValues('isRecurring') && maximumOccurrenceCount === 1) {
+      setValue('isRecurring', false);
+      setValue('occurrenceCount', 1);
+      return;
+    }
+
+    if (getValues('occurrenceCount') > maximumOccurrenceCount) {
+      setValue('occurrenceCount', maximumOccurrenceCount, {
+        shouldValidate: formState.isSubmitted,
+      });
+    }
+  };
+
   return {
     control,
     data: {
@@ -37,6 +55,7 @@ export const useBookingScheduleFields = () => {
     },
     actions: {
       changeStartTime,
+      changeDate,
     },
   };
 };

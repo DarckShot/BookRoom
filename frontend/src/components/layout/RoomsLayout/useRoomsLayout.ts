@@ -9,6 +9,7 @@ export const useRoomsLayout = () => {
 
   return {
     selectedOffice,
+    officesStatus: status,
     officePanelProps: {
       status: getOfficePanelStatus(status, offices.length),
       offices,

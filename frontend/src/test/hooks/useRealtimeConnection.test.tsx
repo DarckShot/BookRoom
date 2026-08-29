@@ -7,6 +7,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { REALTIME_RECONNECT_DELAY_MS } from '../../api/realtime.constants';
 import { useRealtimeConnection } from '../../hooks/useRealtimeConnection';
 
+interface RealtimeEventExpectation {
+  eventType: string;
+  queryKeys: string[][];
+}
+
+const REALTIME_EVENT_EXPECTATIONS: RealtimeEventExpectation[] = [
+  { eventType: 'booking.created', queryKeys: [['rooms'], ['bookings']] },
+  { eventType: 'booking.cancelled', queryKeys: [['rooms'], ['bookings']] },
+  { eventType: 'room.availability_changed', queryKeys: [['rooms']] },
+  { eventType: 'data.reset', queryKeys: [['offices'], ['rooms'], ['bookings']] },
+];
+
 class MockWebSocket extends EventTarget {
   static instances: MockWebSocket[] = [];
 
@@ -23,6 +35,17 @@ class MockWebSocket extends EventTarget {
   };
 }
 
+const renderRealtimeConnection = () => {
+  const queryClient = new QueryClient();
+  const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+  const hook = renderHook(useRealtimeConnection, { wrapper });
+
+  return { ...hook, invalidateQueries };
+};
+
 beforeEach(() => {
   MockWebSocket.instances = [];
   vi.useFakeTimers();
@@ -36,11 +59,7 @@ afterEach(() => {
 
 describe('useRealtimeConnection', () => {
   it('переходит в reconnecting после закрытия WebSocket и восстанавливает соединение', () => {
-    const queryClient = new QueryClient();
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
-    const { result } = renderHook(useRealtimeConnection, { wrapper });
+    const { result, invalidateQueries } = renderRealtimeConnection();
     const firstSocket = MockWebSocket.instances[0];
 
     expect(firstSocket.url).toBe('ws://localhost:3000/api/v1/ws');
@@ -49,6 +68,7 @@ describe('useRealtimeConnection', () => {
     act(() => firstSocket.dispatchEvent(new Event('open')));
     expect(result.current.status).toBe('connected');
 
+    invalidateQueries.mockClear();
     act(() => firstSocket.dispatchEvent(new Event('close')));
     expect(result.current.status).toBe('reconnecting');
 
@@ -57,27 +77,49 @@ describe('useRealtimeConnection', () => {
 
     act(() => reconnectedSocket.dispatchEvent(new Event('open')));
     expect(result.current.status).toBe('connected');
+    expect(invalidateQueries).toHaveBeenCalledTimes(3);
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['offices'] });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['rooms'] });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['bookings'] });
   });
 
-  it('обновляет кэш бронирований после WebSocket-события', () => {
-    const queryClient = new QueryClient();
-    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
-    renderHook(useRealtimeConnection, { wrapper });
+  it.each(REALTIME_EVENT_EXPECTATIONS)(
+    'обновляет нужные REST-данные после события $eventType',
+    ({ eventType, queryKeys }) => {
+      const { invalidateQueries } = renderRealtimeConnection();
+      const socket = MockWebSocket.instances[0];
+
+      act(() => socket.dispatchEvent(new Event('open')));
+      invalidateQueries.mockClear();
+      act(() =>
+        socket.dispatchEvent(
+          new MessageEvent('message', {
+            data: JSON.stringify({ type: eventType }),
+          }),
+        ),
+      );
+
+      expect(invalidateQueries).toHaveBeenCalledTimes(queryKeys.length);
+      queryKeys.forEach((queryKey) => {
+        expect(invalidateQueries).toHaveBeenCalledWith({ queryKey });
+      });
+    },
+  );
+
+  it('игнорирует неизвестные и некорректные WebSocket-сообщения', () => {
+    const { invalidateQueries } = renderRealtimeConnection();
     const socket = MockWebSocket.instances[0];
 
     act(() => socket.dispatchEvent(new Event('open')));
     invalidateQueries.mockClear();
-    act(() =>
+    act(() => {
+      socket.dispatchEvent(new MessageEvent('message', { data: '{broken-json' }));
       socket.dispatchEvent(
-        new MessageEvent('message', {
-          data: JSON.stringify({ type: 'booking.cancelled' }),
-        }),
-      ),
-    );
+        new MessageEvent('message', { data: JSON.stringify({ type: 'unknown.event' }) }),
+      );
+      socket.dispatchEvent(new MessageEvent('message', { data: new Uint8Array() }));
+    });
 
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['bookings'] });
+    expect(invalidateQueries).not.toHaveBeenCalled();
   });
 });

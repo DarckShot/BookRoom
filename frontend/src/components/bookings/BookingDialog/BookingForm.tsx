@@ -8,6 +8,7 @@ import type { Room } from '../../../types/room';
 import { classNames } from '../../../utils/classNames';
 import styles from './BookingForm.module.css';
 import { BookingScheduleFields } from './BookingScheduleFields';
+import { BookingRecurrenceFields } from './BookingRecurrenceFields';
 import type { BookingFormValues } from './types';
 import { formatBookingSummary } from './utils';
 
@@ -29,10 +30,11 @@ export const BookingForm = ({
   onSubmit,
 }: BookingFormProps) => {
   const { register, control, formState } = useFormContext<BookingFormValues>();
-  const [watchedDate, watchedStartTime, watchedDurationMinutes] = useWatch({
-    control,
-    name: ['date', 'startTime', 'durationMinutes'],
-  });
+  const [watchedDate, watchedStartTime, watchedDurationMinutes, isRecurring, occurrenceCount] =
+    useWatch({
+      control,
+      name: ['date', 'startTime', 'durationMinutes', 'isRecurring', 'occurrenceCount'],
+    });
   const date = watchedDate ?? minDate;
   const startTime = watchedStartTime ?? BOOKING_WORKDAY_START;
   const durationMinutes = watchedDurationMinutes ?? BOOKING_DEFAULT_DURATION_MINUTES;
@@ -68,6 +70,8 @@ export const BookingForm = ({
 
         <BookingScheduleFields minDate={minDate} maxDate={maxDate} />
 
+        <BookingRecurrenceFields maxDate={maxDate} />
+
         <div className={styles.field}>
           <label htmlFor="booking-comment">Комментарий</label>
           <textarea
@@ -91,11 +95,14 @@ export const BookingForm = ({
 
         <p className={styles.summary}>
           <InfoCircleIcon />
-          {formatBookingSummary({
-            date,
-            startTime,
-            durationMinutes,
-          })}
+          {formatBookingSummary(
+            {
+              date,
+              startTime,
+              durationMinutes,
+            },
+            isRecurring ? occurrenceCount : 1,
+          )}
         </p>
 
         {errors.root?.server ? (

@@ -46,8 +46,27 @@ export const useBookingsPage = () => {
   const upcomingCount = filterBookings(bookings, UPCOMING_BOOKINGS_TAB, period, now).length;
   const cancelMutation = useMutation({
     mutationFn: cancelBooking,
+    onMutate: async (bookingId) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.bookingsRoot });
+      const previousBookings = queryClient.getQueriesData<Booking[]>({
+        queryKey: queryKeys.bookingsRoot,
+      });
+
+      queryClient.setQueriesData<Booking[]>({ queryKey: queryKeys.bookingsRoot }, (current) =>
+        current?.filter((booking) => booking.id !== bookingId),
+      );
+
+      return { previousBookings };
+    },
     onSuccess: () => {
       setSelectedBooking(undefined);
+    },
+    onError: (_error, _bookingId, context) => {
+      context?.previousBookings.forEach(([queryKey, bookings]) => {
+        queryClient.setQueryData(queryKey, bookings);
+      });
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.bookingsRoot });
       void queryClient.invalidateQueries({ queryKey: queryKeys.roomsRoot });
     },

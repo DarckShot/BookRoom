@@ -2,7 +2,10 @@ import type { SelectOption } from '../../../types/select';
 import {
   BOOKING_DEFAULT_DURATION_MINUTES,
   BOOKING_LATEST_START,
+  BOOKING_MAX_RECURRENCE_COUNT,
+  BOOKING_MIN_RECURRENCE_COUNT,
   BOOKING_MIN_DURATION_MINUTES,
+  BOOKING_RECURRENCE_INTERVAL_DAYS,
   BOOKING_TIME_STEP_MINUTES,
   BOOKING_WORKDAY_END_MINUTES,
   BOOKING_WORKDAY_START,
@@ -16,8 +19,11 @@ import {
   isValidRoomStartTime,
 } from '../../../utils/roomFilters';
 import { formatRoomScheduleDate } from '../../../utils/roomSchedule';
+import { formatMeetingCount } from '../../../utils/bookings';
 import { ROOM_FILTER_PARAMS } from '../../../constants/roomFilters';
 import type { BookingFormValues, BookingIntervalValues } from './types';
+import type { CreateBookingInput } from '../../../types/booking';
+import { addDaysToIsoDate } from '../../../utils/roomFilters';
 
 interface BookingDefaultsInput {
   date: string;
@@ -61,8 +67,26 @@ export const getBookingFormDefaults = ({
     startTime,
     durationMinutes,
     comment: '',
+    isRecurring: false,
+    occurrenceCount: 1,
   };
 };
+
+export const getBookingOccurrenceOptions = (
+  date: string,
+  maxDate: string,
+): readonly SelectOption[] =>
+  Array.from(
+    { length: BOOKING_MAX_RECURRENCE_COUNT - BOOKING_MIN_RECURRENCE_COUNT + 1 },
+    (_, index) => index + BOOKING_MIN_RECURRENCE_COUNT,
+  )
+    .filter(
+      (count) => addDaysToIsoDate(date, (count - 1) * BOOKING_RECURRENCE_INTERVAL_DAYS) <= maxDate,
+    )
+    .map((count) => ({
+      value: String(count),
+      label: formatMeetingCount(count),
+    }));
 
 export const getBookingDurationOptions = (startTime: string): readonly SelectOption[] => {
   const startMinutes = getTimeAsMinutes(startTime) ?? BOOKING_WORKDAY_END_MINUTES;
@@ -86,8 +110,12 @@ export const getBookingEndTime = (startTime: string, durationMinutes: number) =>
   return startMinutes === undefined ? '—:—' : formatMinutesAsTime(startMinutes + durationMinutes);
 };
 
-export const formatBookingSummary = (values: BookingIntervalValues) =>
-  `Бронирование на ${formatRoomScheduleDate(values.date)}, ${values.startTime} - ${getBookingEndTime(values.startTime, values.durationMinutes)} (${formatDuration(values.durationMinutes)})`;
+export const formatBookingSummary = (values: BookingIntervalValues, occurrenceCount = 1) => {
+  const recurrence =
+    occurrenceCount > 1 ? `, еженедельно · ${formatMeetingCount(occurrenceCount)}` : '';
+
+  return `Бронирование на ${formatRoomScheduleDate(values.date)}, ${values.startTime} - ${getBookingEndTime(values.startTime, values.durationMinutes)} (${formatDuration(values.durationMinutes)})${recurrence}`;
+};
 
 export const createBookingInterval = (values: BookingIntervalValues, timeZone: string) =>
   getRoomFilterInterval({
@@ -96,3 +124,26 @@ export const createBookingInterval = (values: BookingIntervalValues, timeZone: s
     durationMinutes: values.durationMinutes,
     timeZone,
   });
+
+export const createBookingInputs = (
+  values: BookingFormValues,
+  roomId: string,
+  timeZone: string,
+): CreateBookingInput[] => {
+  const occurrenceCount = values.isRecurring ? values.occurrenceCount : 1;
+
+  return Array.from({ length: occurrenceCount }, (_, index) => {
+    const date = addDaysToIsoDate(values.date, index * BOOKING_RECURRENCE_INTERVAL_DAYS);
+    const interval = createBookingInterval({ ...values, date }, timeZone);
+
+    return interval
+      ? {
+          roomId,
+          title: values.title.trim(),
+          comment: values.comment.trim() || null,
+          startsAt: interval.from,
+          endsAt: interval.to,
+        }
+      : null;
+  }).filter((input) => input !== null);
+};

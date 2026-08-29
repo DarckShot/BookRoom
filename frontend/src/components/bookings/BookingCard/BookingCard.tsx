@@ -1,5 +1,6 @@
-import { BookingRoomIcon } from '../../../assets/icons/bookings';
+import { BookingCalendarDownloadIcon, BookingRoomIcon } from '../../../assets/icons/bookings';
 import type { Booking } from '../../../types/booking';
+import { downloadBookingCalendar } from '../../../utils/bookingCalendar';
 import {
   formatBookingDay,
   formatBookingMonth,
@@ -36,10 +37,19 @@ export const BookingCard = ({ booking, onCancel }: BookingCardProps) => (
       </div>
     </div>
 
-    {onCancel ? (
-      <button className={styles.cancelButton} type="button" onClick={() => onCancel(booking)}>
-        Отменить
+    <div className={styles.actions}>
+      <button
+        className={styles.calendarButton}
+        type="button"
+        onClick={() => downloadBookingCalendar(booking)}
+      >
+        <BookingCalendarDownloadIcon />В календарь
       </button>
-    ) : null}
+      {onCancel ? (
+        <button className={styles.cancelButton} type="button" onClick={() => onCancel(booking)}>
+          Отменить
+        </button>
+      ) : null}
+    </div>
   </article>
 );

@@ -6,7 +6,7 @@ import { useRealtime } from '../../hooks/useRealtime';
 import { getRoomsContentStatus } from './utils';
 
 export const useRoomsPage = () => {
-  const { selectedOffice } = useRoomsLayoutContext();
+  const { selectedOffice, officesStatus } = useRoomsLayoutContext();
   const realtime = useRealtime();
   const filters = useRoomFilters({
     officeId: selectedOffice?.id,
@@ -26,14 +26,13 @@ export const useRoomsPage = () => {
     filterController: filters.controller,
     roomsContentProps: {
       status: getRoomsContentStatus(
+        officesStatus,
         selectedOffice !== undefined,
-        realtime.status,
         status,
         rooms.length,
       ),
       rooms,
       search: filters.search,
-      connectionStatus: realtime.status,
       onRetry: retry,
       onReset: filters.controller.actions.reset,
     },

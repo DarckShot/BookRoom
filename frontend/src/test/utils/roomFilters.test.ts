@@ -24,9 +24,7 @@ describe('room filters', () => {
   });
 
   it('сокращает длительность, если до конца текущего рабочего дня помещается короткая бронь', () => {
-    expect(
-      getDefaultRoomFilters(new Date('2026-08-29T16:27:00.000Z'), 'Europe/Moscow'),
-    ).toEqual({
+    expect(getDefaultRoomFilters(new Date('2026-08-29T16:27:00.000Z'), 'Europe/Moscow')).toEqual({
       date: '2026-08-29',
       startTime: '19:30',
       durationMinutes: 30,
@@ -35,9 +33,7 @@ describe('room filters', () => {
   });
 
   it('переносит интервал на следующий рабочий день, если не помещаются даже 15 минут', () => {
-    expect(
-      getDefaultRoomFilters(new Date('2026-08-29T16:50:00.000Z'), 'Europe/Moscow'),
-    ).toEqual({
+    expect(getDefaultRoomFilters(new Date('2026-08-29T16:50:00.000Z'), 'Europe/Moscow')).toEqual({
       date: '2026-08-30',
       startTime: '09:00',
       durationMinutes: 60,

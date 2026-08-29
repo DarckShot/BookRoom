@@ -111,3 +111,5 @@ export const formatBookingConfirmationDate = (booking: Booking) => {
     booking,
   )}`;
 };
+
+export const formatMeetingCount = (count: number) => `${count} ${count < 5 ? 'встречи' : 'встреч'}`;

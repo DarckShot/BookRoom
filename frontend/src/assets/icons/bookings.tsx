@@ -14,3 +14,22 @@ export const BookingRoomIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M13 7h3v10" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
   </svg>
 );
+
+export const BookingCalendarDownloadIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" {...props}>
+    <path
+      d="M5.5 2.5v3M14.5 2.5v3M3 7.5h14M4.5 4h11A1.5 1.5 0 0 1 17 5.5v11H3v-11A1.5 1.5 0 0 1 4.5 4Z"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10 10v4m0 0-2-2m2 2 2-2"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

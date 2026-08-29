@@ -2,13 +2,20 @@ import { z } from 'zod';
 import {
   BOOKING_COMMENT_MAX_LENGTH,
   BOOKING_MAX_ADVANCE_MS,
+  BOOKING_MAX_RECURRENCE_COUNT,
+  BOOKING_MIN_RECURRENCE_COUNT,
+  BOOKING_RECURRENCE_INTERVAL_DAYS,
   BOOKING_MIN_DURATION_MINUTES,
   BOOKING_TIME_STEP_MINUTES,
   BOOKING_TITLE_MAX_LENGTH,
   BOOKING_WORKDAY_END_MINUTES,
   BOOKING_WORKDAY_START_MINUTES,
 } from '../../../constants/booking';
-import { getIsoDateInTimeZone, getTimeAsMinutes } from '../../../utils/roomFilters';
+import {
+  addDaysToIsoDate,
+  getIsoDateInTimeZone,
+  getTimeAsMinutes,
+} from '../../../utils/roomFilters';
 import { isValidRoomScheduleDate } from '../../../utils/roomSchedule';
 import type { BookingFormValues } from './types';
 import { createBookingInterval } from './utils';
@@ -40,6 +47,8 @@ export const createBookingFormSchema = ({
         .string()
         .trim()
         .max(BOOKING_COMMENT_MAX_LENGTH, `Не более ${BOOKING_COMMENT_MAX_LENGTH} символов`),
+      isRecurring: z.boolean(),
+      occurrenceCount: z.number().int().min(1).max(BOOKING_MAX_RECURRENCE_COUNT),
     })
     .superRefine((values, context) => {
       const startMinutes = getTimeAsMinutes(values.startTime);
@@ -91,6 +100,33 @@ export const createBookingFormSchema = ({
           path: ['date'],
           message: 'Бронирование доступно не более чем на 30 дней вперёд',
         });
+      }
+
+      if (values.isRecurring) {
+        if (values.occurrenceCount < BOOKING_MIN_RECURRENCE_COUNT) {
+          context.addIssue({
+            code: 'custom',
+            path: ['occurrenceCount'],
+            message: 'Выберите количество встреч',
+          });
+        } else {
+          const lastDate = addDaysToIsoDate(
+            values.date,
+            (values.occurrenceCount - 1) * BOOKING_RECURRENCE_INTERVAL_DAYS,
+          );
+          const lastInterval = createBookingInterval({ ...values, date: lastDate }, timeZone);
+
+          if (
+            !lastInterval ||
+            new Date(lastInterval.from).getTime() - now.getTime() > BOOKING_MAX_ADVANCE_MS
+          ) {
+            context.addIssue({
+              code: 'custom',
+              path: ['occurrenceCount'],
+              message: 'Последняя встреча должна быть не позднее чем через 30 дней',
+            });
+          }
+        }
       }
 
       if (
